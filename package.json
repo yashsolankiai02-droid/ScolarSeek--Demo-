@@ -1,0 +1,25 @@
+{
+  "name": "scholarseek",
+  "version": "1.0.0",
+  "description": "ScholarSeek - Full-Stack Scholarship Discovery Platform",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "server": "node server/server.js",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "npm run build --prefix client",
+    "seed": "node server/seedScript.js"
+  },
+  "keywords": [
+    "scholarship",
+    "react",
+    "express",
+    "mongodb"
+  ],
+  "author": "ScholarSeek Team",
+  "license": "MIT",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
