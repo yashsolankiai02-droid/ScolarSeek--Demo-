@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const dotenv = require('dotenv');
 
 // Load environment variables from config.env or .env
@@ -37,11 +38,16 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'ScholarSeek API operational' });
 });
 
-// Serve frontend static assets in production build
-if (process.env.NODE_ENV === 'production' || process.env.SERVE_CLIENT === 'true') {
+// Serve frontend static assets if dist exists, otherwise render API welcome status
+const clientDistPath = path.resolve(__dirname, '../client', 'dist', 'index.html');
+if (fs.existsSync(clientDistPath)) {
   app.use(express.static(path.join(__dirname, '../client/dist')));
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client', 'dist', 'index.html'));
+    res.sendFile(clientDistPath);
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.status(200).json({ status: 'OK', message: 'ScholarSeek Backend API is operational' });
   });
 }
 
