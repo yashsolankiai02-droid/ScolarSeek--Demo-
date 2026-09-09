@@ -9,9 +9,13 @@ import Results from './pages/Results';
 import Details from './pages/Details';
 import Admin from './pages/Admin';
 
-// Configure Axios default base URL for live Vercel deployment & local dev
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://scolarseek-backend.onrender.com';
-axios.defaults.baseURL = API_BASE_URL;
+// Configure Axios default Base URL:
+// On Vercel / Production: Uses live Render backend API URL
+// On Localhost (Dev Mode): Uses relative '/api' if running locally
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const LIVE_RENDER_API = 'https://scolarseek-demo.onrender.com';
+
+axios.defaults.baseURL = isLocalhost ? (import.meta.env.VITE_API_URL || '') : LIVE_RENDER_API;
 
 export default function App() {
   return (
