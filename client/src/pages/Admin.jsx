@@ -1,60 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, CheckCircle2, AlertCircle, ArrowLeft, Lock } from 'lucide-react';
+import { PlusCircle, CheckCircle2, AlertCircle, ArrowLeft, Lock, Edit2, Trash2, X } from 'lucide-react';
+
+const emptyForm = {
+  name: '',
+  description: '',
+  eligibility: '',
+  sector: 'Educational',
+  state: 'All States',
+  category: ['General', 'OBC', 'SC', 'ST', 'EWS'],
+  maxIncomeLimit: 800000,
+  annualAmount: 50000,
+  deadline: '',
+  officialLink: '',
+  grade: 'Bachelor',
+  fieldOfStudy: 'Science',
+  minCGPA: 60,
+  sportType: 'Cricket',
+  performanceLevel: 'State Level',
+  ageGroup: '14-18',
+  artDiscipline: 'Painting',
+  proficiencyLevel: 'Intermediate',
+  minYearsOfPractice: 2,
+  medicalField: 'MBBS',
+  qualificationLevel: 'Undergraduate',
+  minNEETScore: 500,
+  businessStage: 'Startup',
+  businessType: ['Technology'],
+  fundingAmount: 500000,
+  researchField: 'AI',
+  researchLevel: 'PhD',
+  durationMonths: 12,
+  agriField: 'Horticulture',
+  agriQualification: 'Bachelor',
+  farmType: ['Small (<5 acres)'],
+  causeArea: 'Education',
+  backgroundRequired: 'Fresh graduate',
+  roleType: 'Implementation/Field work',
+};
 
 export default function Admin() {
   const navigate = useNavigate();
 
   const [adminKey, setAdminKey] = useState('');
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    eligibility: '',
-    sector: 'Educational',
-    state: 'All States',
-    category: ['General', 'OBC', 'SC', 'ST', 'EWS'],
-    maxIncomeLimit: 800000,
-    annualAmount: 50000,
-    deadline: '',
-    officialLink: '',
-    // Educational
-    grade: 'Bachelor',
-    fieldOfStudy: 'Science',
-    minCGPA: 60,
-    // Sports
-    sportType: 'Cricket',
-    performanceLevel: 'State Level',
-    ageGroup: '14-18',
-    // Arts & Culture
-    artDiscipline: 'Painting',
-    proficiencyLevel: 'Intermediate',
-    minYearsOfPractice: 2,
-    // Healthcare
-    medicalField: 'MBBS',
-    qualificationLevel: 'Undergraduate',
-    minNEETScore: 500,
-    // Business
-    businessStage: 'Startup',
-    businessType: ['Technology'],
-    fundingAmount: 500000,
-    // Research
-    researchField: 'AI',
-    researchLevel: 'PhD',
-    durationMonths: 12,
-    // Agricultural
-    agriField: 'Horticulture',
-    agriQualification: 'Bachelor',
-    farmType: ['Small (<5 acres)'],
-    // Social
-    causeArea: 'Education',
-    backgroundRequired: 'Fresh graduate',
-    roleType: 'Implementation/Field work',
-  });
+  const [formData, setFormData] = useState(emptyForm);
+
+  const [scholarships, setScholarships] = useState([]);
+  const [editingId, setEditingId] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+
+  const fetchScholarships = async () => {
+    try {
+      const res = await axios.get('/api/scholarships');
+      if (res.data.success) {
+        setScholarships(res.data.data);
+      }
+    } catch (err) {
+      console.error('Error fetching scholarships:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchScholarships();
+  }, []);
 
   const handleChange = (field, val) => {
     setFormData((prev) => ({ ...prev, [field]: val }));
@@ -84,25 +96,69 @@ export default function Admin() {
     }
 
     try {
-      const response = await axios.post('/api/scholarships', formData, {
-        headers: {
-          'x-admin-key': adminKey,
-        },
-      });
-
-      if (response.data && response.data.success) {
-        setSuccessMsg(`🎉 Scholarship "${formData.name}" added successfully to MongoDB Atlas!`);
-        setTimeout(() => {
-          navigate('/results', { state: { filters: { sector: formData.sector } } });
-        }, 1500);
+      if (editingId) {
+        const response = await axios.put(`/api/scholarships/${editingId}`, formData, {
+          headers: { 'x-admin-key': adminKey },
+        });
+        if (response.data && response.data.success) {
+          setSuccessMsg(`🎉 Scholarship "${formData.name}" updated successfully!`);
+          setEditingId(null);
+          setFormData(emptyForm);
+          fetchScholarships();
+        }
+      } else {
+        const response = await axios.post('/api/scholarships', formData, {
+          headers: { 'x-admin-key': adminKey },
+        });
+        if (response.data && response.data.success) {
+          setSuccessMsg(`🎉 Scholarship "${formData.name}" added successfully!`);
+          setFormData(emptyForm);
+          fetchScholarships();
+        }
       }
     } catch (err) {
-      console.error('Error adding scholarship:', err);
+      console.error('Error saving scholarship:', err);
       setErrorMsg(
-        err.response?.data?.message || 'Failed to add scholarship. Check if your Admin Secret Key is correct.'
+        err.response?.data?.message || 'Failed to save scholarship. Check if your Admin Secret Key is correct.'
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditClick = (scholarship) => {
+    setEditingId(scholarship._id);
+    const formattedData = {
+      ...emptyForm, // Fallback for any missing fields
+      ...scholarship,
+      deadline: scholarship.deadline ? scholarship.deadline.split('T')[0] : '', // Format date for input
+    };
+    setFormData(formattedData);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDeleteClick = async (id, name) => {
+    if (!adminKey) {
+      setErrorMsg('Please enter your Admin Secret Passcode at the top first to delete!');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    const confirmDelete = window.confirm(`Are you sure you want to permanently delete "${name}"?`);
+    if (!confirmDelete) return;
+
+    try {
+      const response = await axios.delete(`/api/scholarships/${id}`, {
+        headers: { 'x-admin-key': adminKey },
+      });
+      if (response.data && response.data.success) {
+        setSuccessMsg(`🗑️ Scholarship "${name}" deleted successfully.`);
+        fetchScholarships();
+      }
+    } catch (err) {
+      console.error('Error deleting scholarship:', err);
+      setErrorMsg(
+        err.response?.data?.message || 'Failed to delete. Check your Admin Key.'
+      );
     }
   };
 
@@ -121,12 +177,16 @@ export default function Admin() {
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-slate-800">
         <div className="flex items-center space-x-3">
-          <div className="p-3 bg-emerald-600 rounded-2xl text-white shadow-lg shadow-emerald-600/30">
-            <PlusCircle className="w-6 h-6" />
+          <div className="p-3 bg-brand-600 rounded-2xl text-white shadow-lg shadow-brand-600/30">
+            {editingId ? <Edit2 className="w-6 h-6" /> : <PlusCircle className="w-6 h-6" />}
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Protected Admin Portal</h1>
-            <p className="text-xs text-slate-400">Insert new verified scholarships into MongoDB Atlas</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
+              {editingId ? 'Edit Scholarship' : 'Protected Admin Portal'}
+            </h1>
+            <p className="text-xs text-slate-400">
+              {editingId ? 'Update existing scholarship details' : 'Insert new verified scholarships into the database'}
+            </p>
           </div>
         </div>
 
@@ -428,17 +488,72 @@ export default function Admin() {
           )}
         </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-4 px-6 rounded-xl font-bold text-base text-white bg-gradient-to-r from-emerald-600 via-teal-500 to-brand-600 hover:from-emerald-500 hover:to-brand-500 shadow-xl transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-2"
-        >
-          <Lock className="w-4 h-4" />
-          <span>{loading ? 'Verifying Admin Key & Saving...' : 'Save Scholarship to Database'}</span>
-        </button>
+        <div className="flex gap-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 py-4 px-6 rounded-xl font-bold text-base text-white bg-gradient-to-r from-emerald-600 via-teal-500 to-brand-600 hover:from-emerald-500 hover:to-brand-500 shadow-xl transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-2"
+          >
+            <Lock className="w-4 h-4" />
+            <span>{loading ? 'Saving...' : (editingId ? 'Update Scholarship' : 'Save Scholarship to Database')}</span>
+          </button>
+
+          {editingId && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditingId(null);
+                setFormData(emptyForm);
+              }}
+              className="py-4 px-6 rounded-xl font-bold text-base text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white transition-all flex items-center justify-center space-x-2"
+            >
+              <X className="w-4 h-4" />
+              <span>Cancel Edit</span>
+            </button>
+          )}
+        </div>
 
       </form>
+
+      {/* Active Scholarships List */}
+      <div className="glass-panel p-8 rounded-3xl border border-slate-800 space-y-6 mt-12">
+        <h2 className="text-xl font-bold text-white mb-4">Active Scholarships Directory</h2>
+        
+        {scholarships.length === 0 ? (
+          <p className="text-slate-400 text-sm">No scholarships found in the database.</p>
+        ) : (
+          <div className="space-y-4">
+            {scholarships.map((s) => (
+              <div key={s._id} className="p-5 rounded-2xl border border-slate-800 bg-slate-900/50 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:border-brand-500/50 transition-colors">
+                <div>
+                  <h4 className="text-white font-bold text-sm">{s.name}</h4>
+                  <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                    <span className="bg-slate-800 px-2 py-1 rounded-md">{s.sector}</span>
+                    <span className="bg-slate-800 px-2 py-1 rounded-md">₹{s.annualAmount}</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => handleEditClick(s)}
+                    className="p-2 rounded-lg bg-brand-500/10 text-brand-400 hover:bg-brand-500 hover:text-white transition-colors"
+                    title="Edit Scholarship"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(s._id, s.name)}
+                    className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors"
+                    title="Delete Scholarship"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
     </div>
   );
