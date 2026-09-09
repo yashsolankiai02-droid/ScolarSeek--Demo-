@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { GraduationCap, Heart, ShieldCheck, ExternalLink } from 'lucide-react';
+import { GraduationCap, Heart, ShieldCheck, ExternalLink, Lock } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -39,7 +39,10 @@ export default function Footer() {
                 <Link to="/search?sector=Educational" className="hover:text-brand-400 transition-colors">Education Scholarships</Link>
               </li>
               <li>
-                <Link to="/search?sector=Sports" className="hover:text-brand-400 transition-colors">Sports Fellowships</Link>
+                <Link to="/admin" className="hover:text-amber-400 transition-colors flex items-center">
+                  <Lock className="w-3 h-3 mr-1 text-amber-400" />
+                  <span>Admin Portal</span>
+                </Link>
               </li>
             </ul>
           </div>
