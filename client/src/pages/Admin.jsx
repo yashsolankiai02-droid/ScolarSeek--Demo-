@@ -168,23 +168,23 @@ export default function Admin() {
       {/* Top Navigation */}
       <button
         onClick={() => navigate(-1)}
-        className="inline-flex items-center text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+        className="inline-flex items-center text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors"
       >
         <ArrowLeft className="w-4 h-4 mr-1.5" />
         Back
       </button>
 
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+      <div className="flex items-center justify-between pb-4 border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="p-3 bg-brand-600 rounded-2xl text-white shadow-lg shadow-brand-600/30">
+          <div className="p-3 bg-brand-600 rounded-2xl text-gray-900 shadow-lg shadow-brand-600/30">
             {editingId ? <Edit2 className="w-6 h-6" /> : <PlusCircle className="w-6 h-6" />}
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               {editingId ? 'Edit Scholarship' : 'Protected Admin Portal'}
             </h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-gray-600">
               {editingId ? 'Update existing scholarship details' : 'Insert new verified scholarships into the database'}
             </p>
           </div>
@@ -212,10 +212,10 @@ export default function Admin() {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="glass-panel p-8 rounded-3xl border border-slate-800 space-y-8">
+      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 shadow-sm p-8 rounded-3xl border border-gray-200 space-y-8">
         
         {/* Admin Passcode Header Box */}
-        <div className="bg-slate-950 p-5 rounded-2xl border border-amber-500/30 space-y-2">
+        <div className="bg-gray-50 p-5 rounded-2xl border border-amber-500/30 space-y-2">
           <label className="block text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center">
             <Lock className="w-3.5 h-3.5 mr-1.5" />
             Admin Security Passcode *
@@ -226,60 +226,60 @@ export default function Admin() {
             placeholder="Enter your secret admin key (e.g. admin123)"
             value={adminKey}
             onChange={(e) => setAdminKey(e.target.value)}
-            className="w-full bg-slate-900 border border-amber-500/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400"
+            className="w-full bg-white border border-amber-500/50 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-amber-400"
           />
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-gray-600">
             Set your custom secret passcode in <code className="text-amber-300">config.env</code> under <code className="text-amber-300">ADMIN_KEY</code>.
           </p>
         </div>
 
         {/* Universal Section */}
         <div className="space-y-6">
-          <h3 className="text-sm font-bold text-brand-400 uppercase tracking-wider">Universal Scholarship Details</h3>
+          <h3 className="text-sm font-bold text-brand-700 uppercase tracking-wider">Universal Scholarship Details</h3>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">Scholarship Name *</label>
+            <label className="block text-xs font-semibold text-gray-700 mb-2">Scholarship Name *</label>
             <input
               type="text"
               required
               placeholder="e.g. National Merit Higher Education Assistance Scheme"
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500"
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-brand-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">Description *</label>
+            <label className="block text-xs font-semibold text-gray-700 mb-2">Description *</label>
             <textarea
               required
               rows={3}
               placeholder="Brief summary of what the scholarship offers and its purpose..."
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500"
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-brand-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">Detailed Eligibility Criteria *</label>
+            <label className="block text-xs font-semibold text-gray-700 mb-2">Detailed Eligibility Criteria *</label>
             <textarea
               required
               rows={3}
               placeholder="Who can apply? Academic marks, family conditions, age requirements..."
               value={formData.eligibility}
               onChange={(e) => handleChange('eligibility', e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500"
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-brand-500"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">Sector *</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-2">Sector *</label>
               <select
                 value={formData.sector}
                 onChange={(e) => handleChange('sector', e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-brand-500"
               >
                 {[
                   'Educational',
@@ -297,11 +297,11 @@ export default function Admin() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">State *</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-2">State *</label>
               <select
                 value={formData.state}
                 onChange={(e) => handleChange('state', e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-brand-500"
               >
                 {[
                   'All States',
@@ -323,64 +323,64 @@ export default function Admin() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">Annual Amount (₹) *</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-2">Annual Amount (₹) *</label>
               <input
                 type="number"
                 required
                 placeholder="50000"
                 value={formData.annualAmount}
                 onChange={(e) => handleChange('annualAmount', Number(e.target.value))}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-brand-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">Max Family Income Limit (₹) *</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-2">Max Family Income Limit (₹) *</label>
               <input
                 type="number"
                 required
                 placeholder="800000"
                 value={formData.maxIncomeLimit}
                 onChange={(e) => handleChange('maxIncomeLimit', Number(e.target.value))}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-brand-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-2">Application Deadline *</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-2">Application Deadline *</label>
               <input
                 type="date"
                 required
                 value={formData.deadline}
                 onChange={(e) => handleChange('deadline', e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-brand-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">Official Application Link URL *</label>
+            <label className="block text-xs font-semibold text-gray-700 mb-2">Official Application Link URL *</label>
             <input
               type="url"
               required
               placeholder="https://scholarships.gov.in"
               value={formData.officialLink}
               onChange={(e) => handleChange('officialLink', e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500"
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-brand-500"
             />
           </div>
 
           {/* Category Checkboxes */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">Eligible Social Categories</label>
+            <label className="block text-xs font-semibold text-gray-700 mb-2">Eligible Social Categories</label>
             <div className="flex flex-wrap gap-3">
               {['General', 'OBC', 'SC', 'ST', 'EWS'].map((cat) => (
                 <label
                   key={cat}
                   className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg border text-xs cursor-pointer ${
                     formData.category.includes(cat)
-                      ? 'bg-brand-600/30 border-brand-500 text-white font-semibold'
-                      : 'bg-slate-950 border-slate-800 text-slate-400'
+                      ? 'bg-brand-600/30 border-brand-500 text-gray-900 font-semibold'
+                      : 'bg-gray-50 border-gray-200 text-gray-600'
                   }`}
                 >
                   <input
@@ -398,19 +398,19 @@ export default function Admin() {
         </div>
 
         {/* Sector Specific Section */}
-        <div className="pt-6 border-t border-slate-800 space-y-6">
+        <div className="pt-6 border-t border-gray-200 space-y-6">
           <h3 className="text-sm font-bold text-amber-400 uppercase tracking-wider">
             {formData.sector} Sector Extra Specifics
           </h3>
 
           {formData.sector === 'Educational' && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-950/60 p-5 rounded-2xl border border-slate-800">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-5 rounded-2xl border border-gray-200">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-2">Grade</label>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Grade</label>
                 <select
                   value={formData.grade}
                   onChange={(e) => handleChange('grade', e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white"
+                  className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900"
                 >
                   {['12th', 'Bachelor', 'Masters', 'PhD', 'Any Grade'].map((g) => (
                     <option key={g} value={g}>{g}</option>
@@ -419,11 +419,11 @@ export default function Admin() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-2">Field of Study</label>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Field of Study</label>
                 <select
                   value={formData.fieldOfStudy}
                   onChange={(e) => handleChange('fieldOfStudy', e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white"
+                  className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900"
                 >
                   {['Science', 'Commerce', 'Arts', 'Engineering', 'Medical', 'Law', 'Management', 'Any Field'].map((f) => (
                     <option key={f} value={f}>{f}</option>
@@ -432,26 +432,26 @@ export default function Admin() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-2">Min Percentage Required (%)</label>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Min Percentage Required (%)</label>
                 <input
                   type="number"
                   placeholder="60"
                   value={formData.minCGPA}
                   onChange={(e) => handleChange('minCGPA', Number(e.target.value))}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white"
+                  className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900"
                 />
               </div>
             </div>
           )}
 
           {formData.sector === 'Sports' && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-950/60 p-5 rounded-2xl border border-slate-800">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-5 rounded-2xl border border-gray-200">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-2">Sport Type</label>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Sport Type</label>
                 <select
                   value={formData.sportType}
                   onChange={(e) => handleChange('sportType', e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white"
+                  className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900"
                 >
                   {['Cricket', 'Football', 'Basketball', 'Hockey', 'Badminton', 'Tennis', 'Athletics', 'Swimming', 'Any Sport'].map((s) => (
                     <option key={s} value={s}>{s}</option>
@@ -460,11 +460,11 @@ export default function Admin() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-2">Performance Level</label>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Performance Level</label>
                 <select
                   value={formData.performanceLevel}
                   onChange={(e) => handleChange('performanceLevel', e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white"
+                  className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900"
                 >
                   {['School Level', 'State Level', 'National Level', 'International Level', 'Any Level'].map((p) => (
                     <option key={p} value={p}>{p}</option>
@@ -473,11 +473,11 @@ export default function Admin() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-2">Age Group</label>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Age Group</label>
                 <select
                   value={formData.ageGroup}
                   onChange={(e) => handleChange('ageGroup', e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white"
+                  className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900"
                 >
                   {['10-14', '14-18', '18-25', '25-35', 'Any Age'].map((a) => (
                     <option key={a} value={a}>{a}</option>
@@ -492,7 +492,7 @@ export default function Admin() {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-4 px-6 rounded-xl font-bold text-base text-white bg-gradient-to-r from-emerald-600 via-teal-500 to-brand-600 hover:from-emerald-500 hover:to-brand-500 shadow-xl transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-2"
+            className="flex-1 py-4 px-6 rounded-xl font-bold text-base text-white bg-brand-600 hover:bg-brand-700 shadow-xl transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-2"
           >
             <Lock className="w-4 h-4" />
             <span>{loading ? 'Saving...' : (editingId ? 'Update Scholarship' : 'Save Scholarship to Database')}</span>
@@ -505,7 +505,7 @@ export default function Admin() {
                 setEditingId(null);
                 setFormData(emptyForm);
               }}
-              className="py-4 px-6 rounded-xl font-bold text-base text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white transition-all flex items-center justify-center space-x-2"
+              className="py-4 px-6 rounded-xl font-bold text-base text-gray-700 bg-gray-100 hover:bg-slate-700 hover:text-gray-900 transition-all flex items-center justify-center space-x-2"
             >
               <X className="w-4 h-4" />
               <span>Cancel Edit</span>
@@ -516,34 +516,34 @@ export default function Admin() {
       </form>
 
       {/* Active Scholarships List */}
-      <div className="glass-panel p-8 rounded-3xl border border-slate-800 space-y-6 mt-12">
-        <h2 className="text-xl font-bold text-white mb-4">Active Scholarships Directory</h2>
+      <div className="bg-white border border-gray-200 shadow-sm p-8 rounded-3xl border border-gray-200 space-y-6 mt-12">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Active Scholarships Directory</h2>
         
         {scholarships.length === 0 ? (
-          <p className="text-slate-400 text-sm">No scholarships found in the database.</p>
+          <p className="text-gray-600 text-sm">No scholarships found in the database.</p>
         ) : (
           <div className="space-y-4">
             {scholarships.map((s) => (
-              <div key={s._id} className="p-5 rounded-2xl border border-slate-800 bg-slate-900/50 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:border-brand-500/50 transition-colors">
+              <div key={s._id} className="p-5 rounded-2xl border border-gray-200 bg-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:border-brand-500/50 transition-colors">
                 <div>
-                  <h4 className="text-white font-bold text-sm">{s.name}</h4>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
-                    <span className="bg-slate-800 px-2 py-1 rounded-md">{s.sector}</span>
-                    <span className="bg-slate-800 px-2 py-1 rounded-md">₹{s.annualAmount}</span>
+                  <h4 className="text-gray-900 font-bold text-sm">{s.name}</h4>
+                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-600">
+                    <span className="bg-gray-100 px-2 py-1 rounded-md">{s.sector}</span>
+                    <span className="bg-gray-100 px-2 py-1 rounded-md">₹{s.annualAmount}</span>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => handleEditClick(s)}
-                    className="p-2 rounded-lg bg-brand-500/10 text-brand-400 hover:bg-brand-500 hover:text-white transition-colors"
+                    className="p-2 rounded-lg bg-brand-50 text-brand-700 hover:bg-brand-500 hover:text-gray-900 transition-colors"
                     title="Edit Scholarship"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDeleteClick(s._id, s.name)}
-                    className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors"
+                    className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-gray-900 transition-colors"
                     title="Delete Scholarship"
                   >
                     <Trash2 className="w-4 h-4" />

@@ -18,30 +18,16 @@ export default {
           700: '#1d4ed8',
           800: '#1e40af',
           900: '#1e3a8a',
-          950: '#0f172a',
+          950: '#172554',
         },
-        emerald: {
-          400: '#34d399',
-          500: '#10b981',
-          600: '#059669',
-        },
-        amber: {
-          400: '#fbbf24',
-          500: '#f59e0b',
-        },
-        slate: {
-          850: '#152033',
-          950: '#0f172a',
-        }
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         heading: ['Outfit', 'sans-serif'],
       },
       boxShadow: {
-        'glass': '0 8px 32px 0 rgba(15, 23, 42, 0.37)',
-        'glow': '0 0 30px -5px rgba(37, 99, 235, 0.35)',
-        'emerald-glow': '0 0 25px -5px rgba(16, 185, 129, 0.3)',
+        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+        'card': '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
       }
     },
   },

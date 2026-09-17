@@ -63,12 +63,12 @@ export default function Search() {
       
       {/* Header */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold">
+        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-xs font-semibold">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Tailored Filter Engine</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white">Search Scholarships</h1>
-        <p className="text-slate-400 text-sm max-w-xl mx-auto">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Search Scholarships</h1>
+        <p className="text-gray-600 text-sm max-w-xl mx-auto">
           Configure your state, category, annual income, and sector parameters below.
           The algorithm will match active scholarships instantly.
         </p>

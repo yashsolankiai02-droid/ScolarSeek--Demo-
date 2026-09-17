@@ -11,9 +11,9 @@ const data = [
 
 export default function ScholarshipInsights() {
   return (
-    <div className="w-full h-80 glass-panel p-6 rounded-3xl border border-slate-800 flex flex-col items-center">
-      <h3 className="text-xl font-extrabold text-white mb-2">Active Scholarships by Sector</h3>
-      <p className="text-xs text-slate-400 mb-4 text-center">Live breakdown of currently available government and private funding</p>
+    <div className="w-full h-80 bg-white border border-gray-200 shadow-sm p-6 rounded-3xl border border-gray-200 flex flex-col items-center">
+      <h3 className="text-xl font-bold text-gray-900 mb-2">Active Scholarships by Sector</h3>
+      <p className="text-xs text-gray-600 mb-4 text-center">Live breakdown of currently available government and private funding</p>
       
       <div className="flex-1 w-full relative">
         <ResponsiveContainer width="100%" height="100%">
@@ -51,8 +51,8 @@ export default function ScholarshipInsights() {
         {/* Center Text overlay */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none mb-8">
           <div className="text-center">
-            <span className="block text-2xl font-extrabold text-brand-600">72+</span>
-            <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">Schemes</span>
+            <span className="block text-2xl font-bold text-brand-600">72+</span>
+            <span className="block text-[10px] uppercase font-bold text-gray-600 tracking-wider">Schemes</span>
           </div>
         </div>
       </div>

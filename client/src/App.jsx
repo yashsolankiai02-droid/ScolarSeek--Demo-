@@ -20,7 +20,7 @@ axios.defaults.baseURL = isLocalhost ? (import.meta.env.VITE_API_URL || '') : LI
 export default function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100 font-sans">
+      <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900 font-sans">
         <Navbar />
         <main className="flex-grow">
           <Routes>

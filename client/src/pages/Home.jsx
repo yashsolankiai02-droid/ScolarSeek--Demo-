@@ -2,10 +2,9 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   GraduationCap, Trophy, Palette, Stethoscope, Briefcase, 
-  FlaskConical, Sprout, HeartHandshake, Sparkles, Search, 
-  CheckCircle2, ArrowRight, ShieldCheck, Zap, Layers
+  FlaskConical, Sprout, HeartHandshake, Search, 
+  CheckCircle2, ArrowRight, ShieldCheck, Zap, Layers, MapPin
 } from 'lucide-react';
-import ScholarshipInsights from '../components/ScholarshipInsights';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -15,49 +14,49 @@ export default function Home() {
       title: 'Educational',
       icon: GraduationCap,
       description: 'Pre-matric, post-matric, engineering, medical, law, and degree grants.',
-      gradient: 'from-blue-600 to-indigo-600',
+      color: 'text-blue-600 bg-blue-50',
     },
     {
       title: 'Sports',
       icon: Trophy,
       description: 'Stipends, tournament grants, and TOPS training for state & national athletes.',
-      gradient: 'from-amber-500 to-orange-600',
+      color: 'text-amber-600 bg-amber-50',
     },
     {
       title: 'Arts & Culture',
       icon: Palette,
       description: 'CCRT & Sangeet Natak Akademi fellowships for music, dance, and visual arts.',
-      gradient: 'from-purple-600 to-pink-600',
+      color: 'text-pink-600 bg-pink-50',
     },
     {
       title: 'Healthcare',
       icon: Stethoscope,
       description: 'MBBS, BDS, Nursing, AYUSH, and NEET-based financial aid.',
-      gradient: 'from-emerald-500 to-teal-600',
+      color: 'text-emerald-600 bg-emerald-50',
     },
     {
       title: 'Business & Entrepreneurship',
       icon: Briefcase,
       description: 'Startup India seed funds, innovation grants, and Stand-Up India capital.',
-      gradient: 'from-cyan-500 to-blue-600',
+      color: 'text-cyan-600 bg-cyan-50',
     },
     {
       title: 'Research & Innovation',
       icon: FlaskConical,
       description: 'CSIR NET, PMRF, SERB, and doctoral/postdoctoral fellowships.',
-      gradient: 'from-rose-500 to-red-600',
+      color: 'text-rose-600 bg-rose-50',
     },
     {
       title: 'Agricultural',
       icon: Sprout,
       description: 'ICAR JRF/SRF, organic farming incentives, and dairy youth development.',
-      gradient: 'from-green-500 to-emerald-600',
+      color: 'text-green-600 bg-green-50',
     },
     {
       title: 'Social Sector',
       icon: HeartHandshake,
       description: 'NGO development grants, education grassroots work, and disability rights.',
-      gradient: 'from-violet-600 to-purple-600',
+      color: 'text-purple-600 bg-purple-50',
     },
   ];
 
@@ -66,119 +65,104 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-24 pb-16">
+    <div className="space-y-16 pb-16 bg-gray-50">
       
       {/* ========================================================================= */}
-      {/* 1. HERO SECTION (Split Layout) */}
+      {/* 1. FUNCTIONAL SEARCH HERO */}
       {/* ========================================================================= */}
-      <section className="relative pt-12 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-[600px] h-[350px] bg-brand-600/20 blur-[120px] rounded-full pointer-events-none"></div>
+      <section className="bg-white border-b border-gray-200 pt-16 pb-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
+            Find scholarships you are eligible for.
+          </h1>
+          <p className="text-lg text-gray-600 mb-10 max-w-2xl mx-auto">
+            Search a verified database of central government, state, and private scholarships across India. Compare opportunities and check eligibility criteria before you apply.
+          </p>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Quick Search Entry */}
+          <div className="bg-white p-3 rounded-2xl border border-gray-200 shadow-soft max-w-3xl mx-auto flex flex-col md:flex-row gap-3">
+            <div className="flex-1 flex items-center border border-gray-200 rounded-lg px-4 bg-gray-50 focus-within:ring-2 focus-within:ring-brand-500 focus-within:border-brand-500 transition-all">
+              <Search className="w-5 h-5 text-gray-400 mr-2" />
+              <input 
+                type="text" 
+                placeholder="What are you studying? (e.g. B.Tech, MBBS)"
+                className="w-full bg-transparent py-3 text-sm text-gray-900 outline-none"
+              />
+            </div>
             
-            {/* Hero Text */}
-            <div className="text-left">
-              <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-panel border border-brand-500/30 text-brand-300 text-xs font-semibold mb-8 animate-fade-in">
-                <Sparkles className="w-4 h-4 text-brand-400 animate-spin" />
-                <span>Smart Multi-Sector Scholarship Discovery Platform</span>
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-                Find Your <span className="bg-gradient-to-r from-brand-400 via-cyan-300 to-brand-500 bg-clip-text text-transparent">Perfect Scholarship</span>
-              </h1>
-
-              <p className="text-lg text-slate-300 mb-10 leading-relaxed font-light">
-                Discover scholarships from across India tailored precisely to your profile.
-                Customized filtering across <strong className="text-white">8 distinct sectors</strong> with universal income, state, and category matching.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <Link
-                  to="/search"
-                  className="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-base text-white bg-gradient-to-r from-brand-600 via-brand-500 to-cyan-500 hover:from-brand-500 hover:to-cyan-400 shadow-xl shadow-brand-600/30 hover:shadow-brand-500/50 transition-all hover:scale-105 flex items-center justify-center space-x-3"
-                >
-                  <Search className="w-5 h-5" />
-                  <span>Start Searching Now</span>
-                </Link>
-
-                <a
-                  href="#sectors"
-                  className="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-base text-slate-300 hover:text-white glass-panel border border-slate-700/80 hover:border-brand-500/40 transition-all flex items-center justify-center space-x-2"
-                >
-                  <span>Explore 8 Sectors</span>
-                  <ArrowRight className="w-4 h-4" />
-                </a>
-              </div>
+            <div className="flex-1 flex items-center border border-gray-200 rounded-lg px-4 bg-gray-50 focus-within:ring-2 focus-within:ring-brand-500 focus-within:border-brand-500 transition-all">
+              <MapPin className="w-5 h-5 text-gray-400 mr-2" />
+              <select className="w-full bg-transparent py-3 text-sm text-gray-900 outline-none cursor-pointer">
+                <option value="">Where are you from?</option>
+                <option value="maharashtra">Maharashtra</option>
+                <option value="gujarat">Gujarat</option>
+                <option value="karnataka">Karnataka</option>
+                <option value="delhi">Delhi</option>
+              </select>
             </div>
 
-            {/* Hero Image */}
-            <div className="relative group lg:mt-0 mt-10">
-              <div className="absolute -inset-1 bg-gradient-to-r from-brand-500 to-cyan-400 rounded-[2rem] blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-              <div className="relative rounded-[2rem] overflow-hidden border border-slate-800 shadow-2xl">
-                <img 
-                  src="/images/features_dashboard.jpg" 
-                  alt="Scholarship Dashboard Interface" 
-                  className="w-full h-auto object-cover transform hover:scale-105 transition duration-700"
-                />
-              </div>
-            </div>
+            <button 
+              onClick={() => navigate('/search')}
+              className="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-lg transition-colors whitespace-nowrap"
+            >
+              Search
+            </button>
           </div>
 
-          {/* Quick Metrics (Below Hero) */}
-          <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Verified Scholarships', value: '200+' },
-              { label: 'Distinct Sectors', value: '8 Fields' },
-              { label: 'States Covered', value: 'All India' },
-              { label: 'Total Annual Aid', value: '₹50+ Cr' },
-            ].map((stat, i) => (
-              <div key={i} className="glass-panel p-4 rounded-xl border border-slate-800 text-center hover:bg-slate-800/50 transition-colors">
-                <div className="text-2xl sm:text-3xl font-extrabold text-brand-400">{stat.value}</div>
-                <div className="text-xs text-slate-400 mt-1">{stat.label}</div>
-              </div>
-            ))}
+          <div className="mt-8 flex flex-wrap justify-center gap-4 text-sm text-gray-600 mb-12">
+            <span className="flex items-center"><ShieldCheck className="w-4 h-4 mr-1.5 text-emerald-600" /> Verified Data</span>
+            <span className="flex items-center"><Layers className="w-4 h-4 mr-1.5 text-brand-600" /> 8 Unique Sectors</span>
+            <span className="flex items-center"><Zap className="w-4 h-4 mr-1.5 text-amber-500" /> Instant Matching</span>
           </div>
+        </div>
 
+        {/* Hero Image - Wider container */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full rounded-2xl overflow-hidden shadow-xl border border-gray-200 h-[300px] md:h-[450px]">
+            <img 
+              src="/images/students_campus_hero.jpg" 
+              alt="Diverse university students on campus" 
+              className="w-full h-full object-cover object-center"
+            />
+          </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. 8 SECTOR CATEGORY CARDS */}
+      {/* 2. BROWSE BY CATEGORY */}
       {/* ========================================================================= */}
-      <section id="sectors" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-extrabold text-white mb-3">Explore Scholarships by Sector</h2>
-          <p className="text-slate-400 max-w-2xl mx-auto text-sm">
-            Every sector has unique questions. Click a category card to launch the tailored search engine.
-          </p>
+      <section id="sectors" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Browse by Sector</h2>
+            <p className="text-gray-600 text-sm">
+              Select a field to view scholarships tailored to specific requirements.
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {sectorCards.map((cat) => {
             const Icon = cat.icon;
             return (
               <div
                 key={cat.title}
                 onClick={() => handleSectorClick(cat.title)}
-                className="glass-panel glass-panel-hover p-6 rounded-2xl border border-slate-800 cursor-pointer flex flex-col justify-between group"
+                className="bg-white border border-gray-200 p-5 rounded-xl cursor-pointer hover:border-brand-300 hover:shadow-soft transition-all group"
               >
-                <div>
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-tr ${cat.gradient} flex items-center justify-center text-white mb-4 shadow-lg group-hover:scale-110 transition-transform duration-200`}>
-                    <Icon className="w-6 h-6" />
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${cat.color}`}>
+                    <Icon className="w-5 h-5" />
                   </div>
-                  <h3 className="text-lg font-bold text-white group-hover:text-brand-300 transition-colors mb-2">
-                    {cat.title}
-                  </h3>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-6">
-                    {cat.description}
-                  </p>
+                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-brand-600 group-hover:translate-x-1 transition-transform" />
                 </div>
-
-                <div className="flex items-center text-xs font-semibold text-brand-400 group-hover:text-brand-300">
-                  <span>Match Criteria</span>
-                  <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform" />
-                </div>
+                <h3 className="text-base font-bold text-gray-900 mb-1">
+                  {cat.title}
+                </h3>
+                <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
+                  {cat.description}
+                </p>
               </div>
             );
           })}
@@ -186,132 +170,31 @@ export default function Home() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. KEY FEATURES + STATISTICAL DIAGRAM */}
+      {/* 3. HOW IT WORKS (Functional explanation) */}
       {/* ========================================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="glass-panel rounded-3xl p-8 sm:p-12 border border-slate-800 relative overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            
-            {/* Features List (Left) */}
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-3xl font-extrabold text-white mb-3">
-                  Data-Driven & Verified
-                </h2>
-                <p className="text-slate-400 text-sm leading-relaxed">
-                  We monitor over 200+ government portals to ensure our database is always up to date. The chart shows the current live distribution of active schemes.
-                </p>
-              </div>
-
-              <div className="space-y-6">
-                <div className="flex space-x-4">
-                  <div className="p-3 bg-brand-500/10 border border-brand-500/20 rounded-2xl text-brand-400 h-fit">
-                    <Layers className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-white mb-2">Conditional Filters</h4>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      Only answer what applies to you. Educational asks for CGPA; Healthcare asks for NEET score.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex space-x-4">
-                  <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400 h-fit">
-                    <ShieldCheck className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-white mb-2">Verified Government Data</h4>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      Direct official links to scholarships.gov.in, AICTE, CSIR, and official portals.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex space-x-4">
-                  <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-400 h-fit">
-                    <Zap className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-white mb-2">Zero Document Upload</h4>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      Instant accurate scholarship matches in under 10 seconds, no login required.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Statistical Chart (Right) */}
-            <div className="h-full">
-              <ScholarshipInsights />
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 4. PINPOINT PRECISION SECTION */}
-      {/* ========================================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-white border border-gray-200 rounded-2xl p-8 lg:p-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">How Scolar Seek Works</h2>
           
-          {/* Image Side (Left) */}
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-[2rem] blur opacity-20 group-hover:opacity-30 transition duration-1000"></div>
-            <div className="relative rounded-[2rem] overflow-hidden border border-slate-800 shadow-2xl">
-              <img 
-                src="/images/scholarship_features.jpg" 
-                alt="Scholarship Advanced Filtering" 
-                className="w-full h-auto object-cover transform hover:scale-105 transition duration-700"
-              />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-3">
+              <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm mb-4">1</div>
+              <h3 className="text-lg font-bold text-gray-900">Define your profile</h3>
+              <p className="text-sm text-gray-600">Enter your course, state, family income, and category to filter out scholarships you aren't eligible for.</p>
             </div>
-          </div>
-
-          {/* Text Side (Right) */}
-          <div className="space-y-6">
-            <h2 className="text-3xl font-extrabold text-white">
-              Pinpoint Precision Matching
-            </h2>
-            <p className="text-slate-400 text-lg leading-relaxed">
-              Finding the right scholarship shouldn't feel like searching for a needle in a haystack. 
-              Our intelligent filtering engine allows you to cross-reference multiple data points to find the exact match for your unique profile.
-            </p>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-              <div className="glass-panel p-5 rounded-xl border border-slate-800">
-                <div className="font-bold text-brand-400 mb-2">State & Category</div>
-                <p className="text-xs text-slate-400">Filter by domicile requirements and specific quota allotments seamlessly.</p>
-              </div>
-              <div className="glass-panel p-5 rounded-xl border border-slate-800">
-                <div className="font-bold text-brand-400 mb-2">Income Ceilings</div>
-                <p className="text-xs text-slate-400">Automatically filter out scholarships where your family income exceeds the limit.</p>
-              </div>
+            <div className="space-y-3">
+              <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm mb-4">2</div>
+              <h3 className="text-lg font-bold text-gray-900">Compare opportunities</h3>
+              <p className="text-sm text-gray-600">Review verified scholarship amounts, required documents, and exact application deadlines side-by-side.</p>
+            </div>
+
+            <div className="space-y-3">
+              <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm mb-4">3</div>
+              <h3 className="text-lg font-bold text-gray-900">Apply via official sources</h3>
+              <p className="text-sm text-gray-600">Scolar Seek points you directly to official government portals or private trust websites to submit your application safely.</p>
             </div>
           </div>
-
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 5. BOTTOM CTA BANNER */}
-      {/* ========================================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-brand-900 via-brand-700 to-slate-900 rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden border border-brand-500/30 shadow-2xl">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-            Ready to Unlock Your Scholarship Funding?
-          </h2>
-          <p className="text-slate-300 max-w-xl mx-auto text-sm mb-8">
-            Filter through hundreds of active schemes from central government, state bodies, and private trusts.
-          </p>
-          <Link
-            to="/search"
-            className="inline-flex items-center space-x-2 px-8 py-4 rounded-xl font-bold text-brand-950 bg-white hover:bg-slate-100 shadow-xl transition-all hover:scale-105 cursor-pointer"
-          >
-            <Search className="w-5 h-5" />
-            <span>Launch Scholarship Matcher</span>
-          </Link>
         </div>
       </section>
 
