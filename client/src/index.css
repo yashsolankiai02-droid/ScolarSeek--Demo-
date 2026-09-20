@@ -3,13 +3,29 @@
 @tailwind utilities;
 
 @layer base {
+  html.dark body {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white;
+    background-color: #ffffff !important;
+    color: #111827;
+    @apply min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading tracking-tight text-gray-900;
+    @apply font-heading tracking-tight;
   }
+}
+
+/* Hide scrollbar utilities */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Custom Scrollbars */
@@ -17,14 +33,17 @@
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: #ffffff;
+}
+html.dark ::-webkit-scrollbar-track {
+  background: #000000;
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
 }
 
 /* Animation utilities */
@@ -34,7 +53,7 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

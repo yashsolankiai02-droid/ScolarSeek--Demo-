@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { GraduationCap, Search, Home, Menu, X, Sparkles } from 'lucide-react';
-
+import { GraduationCap, Search, Home, Menu, X, Sparkles, LayoutDashboard, Bookmark, FileText, User } from 'lucide-react';
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -31,35 +30,53 @@ export default function Navbar() {
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center space-x-1">
             <Link
-              to="/"
-              className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                isActive('/')
-                  ? 'bg-brand-50 text-brand-700 border border-brand-100'
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/60'
+              to="/dashboard"
+              className={`flex items-center px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                isActive('/dashboard') ? 'bg-brand-50 text-brand-700 border border-brand-100' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
-              <Home className="w-4 h-4 mr-2" />
-              Home
+              <LayoutDashboard className="w-4 h-4 mr-2" />
+              Dashboard
             </Link>
 
             <Link
               to="/search"
-              className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                isActive('/search')
-                  ? 'bg-brand-50 text-brand-700 border border-brand-100'
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/60'
+              className={`flex items-center px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                isActive('/search') ? 'bg-brand-50 text-brand-700 border border-brand-100' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
               <Search className="w-4 h-4 mr-2" />
-              Find Scholarships
+              Explore
             </Link>
 
             <Link
-              to="/search"
-              className="ml-4 flex items-center px-5 py-2.5 rounded-lg font-semibold text-sm text-white bg-brand-600 hover:bg-brand-700 transition-all"
+              to="/saved"
+              className={`flex items-center px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                isActive('/saved') ? 'bg-brand-50 text-brand-700 border border-brand-100' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+              }`}
             >
-              <Search className="w-4 h-4 mr-2" />
-              Start Matcher
+              <Bookmark className="w-4 h-4 mr-2" />
+              Saved
+            </Link>
+
+            <Link
+              to="/applications"
+              className={`flex items-center px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                isActive('/applications') ? 'bg-brand-50 text-brand-700 border border-brand-100' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Applications
+            </Link>
+
+            <Link
+              to="/profile"
+              className={`ml-4 flex items-center px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+                isActive('/profile') ? 'bg-brand-600 text-white shadow-sm' : 'bg-white text-brand-600 border border-brand-200 hover:bg-brand-50'
+              }`}
+            >
+              <User className="w-4 h-4 mr-2" />
+              Profile
             </Link>
           </nav>
 
@@ -81,14 +98,14 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-b border-gray-200 px-4 pt-2 pb-6 space-y-2 animate-fade-in shadow-md">
           <Link
-            to="/"
+            to="/dashboard"
             onClick={() => setMobileMenuOpen(false)}
             className={`flex items-center px-4 py-3 rounded-lg text-base font-medium ${
-              isActive('/') ? 'bg-brand-50 text-brand-700' : 'text-gray-700 hover:bg-gray-100'
+              isActive('/dashboard') ? 'bg-brand-50 text-brand-700' : 'text-gray-700 hover:bg-gray-100'
             }`}
           >
-            <Home className="w-5 h-5 mr-3" />
-            Home
+            <LayoutDashboard className="w-5 h-5 mr-3" />
+            Dashboard
           </Link>
 
           <Link
@@ -99,16 +116,40 @@ export default function Navbar() {
             }`}
           >
             <Search className="w-5 h-5 mr-3" />
-            Find Scholarships
+            Explore Scholarships
           </Link>
 
           <Link
-            to="/search"
+            to="/saved"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center justify-center w-full mt-4 px-5 py-3 rounded-lg font-bold text-white bg-brand-600 hover:bg-brand-700"
+            className={`flex items-center px-4 py-3 rounded-lg text-base font-medium ${
+              isActive('/saved') ? 'bg-brand-50 text-brand-700' : 'text-gray-700 hover:bg-gray-100'
+            }`}
           >
-            <Search className="w-5 h-5 mr-2" />
-            Start Matcher
+            <Bookmark className="w-5 h-5 mr-3" />
+            Saved Scholarships
+          </Link>
+
+          <Link
+            to="/applications"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`flex items-center px-4 py-3 rounded-lg text-base font-medium ${
+              isActive('/applications') ? 'bg-brand-50 text-brand-700' : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <FileText className="w-5 h-5 mr-3" />
+            My Applications
+          </Link>
+
+          <Link
+            to="/profile"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`flex items-center justify-center w-full mt-4 px-5 py-3 rounded-lg font-bold ${
+              isActive('/profile') ? 'text-white bg-brand-600' : 'text-brand-700 bg-brand-50 border border-brand-200'
+            }`}
+          >
+            <User className="w-5 h-5 mr-2" />
+            Student Profile
           </Link>
         </div>
       )}

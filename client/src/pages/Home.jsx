@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useProfile } from '../contexts/ProfileContext';
 import { 
   GraduationCap, Trophy, Palette, Stethoscope, Briefcase, 
   FlaskConical, Sprout, HeartHandshake, Search, 
@@ -8,7 +9,13 @@ import {
 
 export default function Home() {
   const navigate = useNavigate();
+  const { completionPercentage } = useProfile();
 
+  useEffect(() => {
+    if (completionPercentage > 0) {
+      navigate('/dashboard');
+    }
+  }, [completionPercentage, navigate]);
   const sectorCards = [
     {
       title: 'Educational',

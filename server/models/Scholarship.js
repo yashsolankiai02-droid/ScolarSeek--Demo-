@@ -10,13 +10,25 @@ const scholarshipSchema = new mongoose.Schema(
       required: [true, 'Scholarship name is required'],
       trim: true,
     },
+    nameHi: {
+      type: String,
+      default: '',
+    },
     description: {
       type: String,
       required: [true, 'Description is required'],
     },
+    descriptionHi: {
+      type: String,
+      default: '',
+    },
     eligibility: {
       type: String,
       required: [true, 'Eligibility text is required'],
+    },
+    eligibilityHi: {
+      type: String,
+      default: '',
     },
     sector: {
       type: String,
