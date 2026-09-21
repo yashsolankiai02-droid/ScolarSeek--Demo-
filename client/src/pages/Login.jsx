@@ -15,27 +15,27 @@ export default function Login() {
   const { login, signup } = useAuth();
   const navigate = useNavigate();
 
-  const handleSuperAdminQuickLogin = () => {
+  const handleSuperAdminQuickLogin = async () => {
     setError('');
     setEmail('yashsolanki@scholarseek.ac.in');
     setPassword('saumya2');
-    const result = login('yashsolanki@scholarseek.ac.in', 'saumya2');
+    const result = await login('yashsolanki@scholarseek.ac.in', 'saumya2');
     if (result.success) {
       navigate('/admin');
     }
   };
 
-  const handleStudentQuickLogin = () => {
+  const handleStudentQuickLogin = async () => {
     setError('');
     setEmail('student@scholarseek.ac.in');
     setPassword('student123');
-    const result = login('student@scholarseek.ac.in', 'student123');
+    const result = await login('student@scholarseek.ac.in', 'student123');
     if (result.success) {
       navigate('/dashboard');
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -45,7 +45,7 @@ export default function Login() {
       if (!email.trim()) { setError('Please enter your email.'); setLoading(false); return; }
       if (password.length < 4) { setError('Password must be at least 4 characters.'); setLoading(false); return; }
       
-      const result = signup(email.trim(), password, name.trim());
+      const result = await signup(email.trim(), password, name.trim());
       if (result.success) {
         navigate('/profile');
       } else {
@@ -54,9 +54,9 @@ export default function Login() {
     } else {
       if (!email.trim() || !password) { setError('Please enter email and password.'); setLoading(false); return; }
       
-      const result = login(email.trim(), password);
+      const result = await login(email.trim(), password);
       if (result.success) {
-        if (result.user?.role === 'super_admin' || result.user?.email.includes('scholarseek.ac.in')) {
+        if (result.user?.role === 'super_admin' || result.user?.email?.includes('scholarseek.ac.in')) {
           navigate('/admin');
         } else {
           navigate('/dashboard');

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -21,7 +22,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  const signup = (emailInput, password, nameInput) => {
+  const signup = async (emailInput, password, nameInput) => {
     const email = (emailInput || '').trim().toLowerCase();
     const name = (nameInput || '').trim() || 'Student';
 
@@ -30,29 +31,28 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const accounts = JSON.parse(localStorage.getItem('auth_accounts') || '[]');
-      const existingIndex = accounts.findIndex(a => a.email.toLowerCase() === email);
-
-      const newAccount = { email, password, name, role: 'student', createdAt: new Date().toISOString() };
-      
-      if (existingIndex >= 0) {
-        accounts[existingIndex] = newAccount;
-      } else {
-        accounts.push(newAccount);
+      const response = await axios.post('/api/auth/register', { email, password, name });
+      if (response.data && response.data.success && response.data.user) {
+        setUser(response.data.user);
+        return { success: true, user: response.data.user };
       }
-      
-      localStorage.setItem('auth_accounts', JSON.stringify(accounts));
-      const loggedUser = { email, name, role: 'student' };
-      setUser(loggedUser);
-      return { success: true, user: loggedUser };
     } catch (e) {
-      const loggedUser = { email, name, role: 'student' };
-      setUser(loggedUser);
-      return { success: true, user: loggedUser };
+      console.warn('Backend signup API fallback to local:', e.message);
     }
+
+    // Local Storage Fallback
+    const loggedUser = { email, name, role: 'student' };
+    try {
+      const accounts = JSON.parse(localStorage.getItem('auth_accounts') || '[]');
+      accounts.push({ email, password, name, role: 'student', createdAt: new Date().toISOString() });
+      localStorage.setItem('auth_accounts', JSON.stringify(accounts));
+    } catch (err) {}
+
+    setUser(loggedUser);
+    return { success: true, user: loggedUser };
   };
 
-  const login = (emailInput, passwordInput) => {
+  const login = async (emailInput, passwordInput) => {
     const email = (emailInput || '').trim().toLowerCase();
     const password = (passwordInput || '').trim();
 
@@ -74,27 +74,19 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: adminUser };
     }
 
-    // Check registered accounts in localStorage
     try {
-      const accounts = JSON.parse(localStorage.getItem('auth_accounts') || '[]');
-      const account = accounts.find(a => a.email.toLowerCase() === email && a.password === password);
-      
-      if (account) {
-        const loggedUser = { email: account.email, name: account.name || 'Student', role: account.role || 'student' };
-        setUser(loggedUser);
-        return { success: true, user: loggedUser };
+      const response = await axios.post('/api/auth/login', { email, password });
+      if (response.data && response.data.success && response.data.user) {
+        setUser(response.data.user);
+        return { success: true, user: response.data.user };
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Backend login API fallback to local:', e.message);
+    }
 
-    // Universal fallback for created accounts (e.g. Tata, Student)
+    // Fallback for created accounts
     const formattedName = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const autoUser = { email, name: formattedName || 'Student', role: 'student' };
-    
-    try {
-      const accounts = JSON.parse(localStorage.getItem('auth_accounts') || '[]');
-      accounts.push({ email, password, name: autoUser.name, role: 'student', createdAt: new Date().toISOString() });
-      localStorage.setItem('auth_accounts', JSON.stringify(accounts));
-    } catch (e) {}
 
     setUser(autoUser);
     return { success: true, user: autoUser };

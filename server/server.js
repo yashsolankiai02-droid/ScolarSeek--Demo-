@@ -13,6 +13,7 @@ const { connectDB } = require('./config/db');
 
 const searchRouter = require('./routes/search');
 const scholarshipsRouter = require('./routes/scholarships');
+const authRouter = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,6 +33,7 @@ app.use((req, res, next) => {
 // API Routes
 app.use('/api/search', searchRouter);
 app.use('/api/scholarships', scholarshipsRouter);
+app.use('/api/auth', authRouter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
