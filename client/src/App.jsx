@@ -62,7 +62,6 @@ function ProtectedRoutes() {
           <Route path="/search" element={<MobileSearch />} />
           <Route path="/results" element={<Results />} />
           <Route path="/scholarship/:id" element={<MobileDetails />} />
-          <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </MobileLayout>
@@ -80,7 +79,6 @@ function ProtectedRoutes() {
         <Route path="/search" element={<Search />} />
         <Route path="/results" element={<Results />} />
         <Route path="/scholarship/:id" element={<Details />} />
-        <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </DesktopLayout>
@@ -92,6 +90,8 @@ function AppRoutes() {
 
   return (
     <Routes>
+      {/* Direct accessible routes */}
+      <Route path="/admin" element={<Admin />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
       <Route path="/*" element={<ProtectedRoutes />} />
     </Routes>
