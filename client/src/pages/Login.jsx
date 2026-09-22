@@ -21,7 +21,7 @@ export default function Login() {
     setPassword('saumya2');
     const result = await login('yashsolanki@scholarseek.ac.in', 'saumya2');
     if (result.success) {
-      navigate('/admin');
+      window.location.href = '/admin';
     }
   };
 
@@ -31,7 +31,7 @@ export default function Login() {
     setPassword('student123');
     const result = await login('student@scholarseek.ac.in', 'student123');
     if (result.success) {
-      navigate('/dashboard');
+      window.location.href = '/dashboard';
     }
   };
 
@@ -47,7 +47,7 @@ export default function Login() {
       
       const result = await signup(email.trim(), password, name.trim());
       if (result.success) {
-        navigate('/profile');
+        window.location.href = '/profile';
       } else {
         setError(result.error);
       }
@@ -57,9 +57,9 @@ export default function Login() {
       const result = await login(email.trim(), password);
       if (result.success) {
         if (result.user?.role === 'super_admin' || result.user?.email?.includes('scholarseek.ac.in')) {
-          navigate('/admin');
+          window.location.href = '/admin';
         } else {
-          navigate('/dashboard');
+          window.location.href = '/dashboard';
         }
       } else {
         setError(result.error || 'Login failed.');

@@ -14,13 +14,17 @@ export const AuthProvider = ({ children }) => {
     return null;
   });
 
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem('auth_user', JSON.stringify(user));
+  const saveUser = (userData) => {
+    if (userData) {
+      try {
+        localStorage.setItem('auth_user', JSON.stringify(userData));
+      } catch (e) {}
+      setUser(userData);
     } else {
       localStorage.removeItem('auth_user');
+      setUser(null);
     }
-  }, [user]);
+  };
 
   const signup = async (emailInput, password, nameInput) => {
     const email = (emailInput || '').trim().toLowerCase();
@@ -33,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post('/api/auth/register', { email, password, name });
       if (response.data && response.data.success && response.data.user) {
-        setUser(response.data.user);
+        saveUser(response.data.user);
         return { success: true, user: response.data.user };
       }
     } catch (e) {
@@ -48,7 +52,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('auth_accounts', JSON.stringify(accounts));
     } catch (err) {}
 
-    setUser(loggedUser);
+    saveUser(loggedUser);
     return { success: true, user: loggedUser };
   };
 
@@ -70,14 +74,14 @@ export const AuthProvider = ({ children }) => {
         name: 'Yash Solanki (Super Admin)',
         role: 'super_admin'
       };
-      setUser(adminUser);
+      saveUser(adminUser);
       return { success: true, user: adminUser };
     }
 
     try {
       const response = await axios.post('/api/auth/login', { email, password });
       if (response.data && response.data.success && response.data.user) {
-        setUser(response.data.user);
+        saveUser(response.data.user);
         return { success: true, user: response.data.user };
       }
     } catch (e) {
@@ -88,17 +92,16 @@ export const AuthProvider = ({ children }) => {
     const formattedName = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const autoUser = { email, name: formattedName || 'Student', role: 'student' };
 
-    setUser(autoUser);
+    saveUser(autoUser);
     return { success: true, user: autoUser };
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('auth_user');
+    saveUser(null);
     window.location.href = '/login';
   };
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!user || !!localStorage.getItem('auth_user');
 
   return (
     <AuthContext.Provider value={{ user, isAuthenticated, login, signup, logout }}>
