@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// High-contrast accessible login form with full MongoDB cross-device authentication
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { GraduationCap, Mail, Lock, User, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
