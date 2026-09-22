@@ -19,20 +19,34 @@
   }
 }
 
+/* Input field text & background visibility rules */
+input, select, textarea {
+  color: #0f172a !important;
+  background-color: #f8fafc;
+}
+
+html.dark input, 
+html.dark select, 
+html.dark textarea {
+  color: #ffffff !important;
+  background-color: #1e293b;
+}
+
 /* Ensure Chrome/Safari autofill respects theme colors */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
 input:-webkit-autofill:active {
   -webkit-text-fill-color: #0f172a !important;
-  transition: background-color 50000s ease-in-out 0s;
+  -webkit-box-shadow: 0 0 0px 1000px #f8fafc inset !important;
 }
 
 html.dark input:-webkit-autofill,
 html.dark input:-webkit-autofill:hover, 
 html.dark input:-webkit-autofill:focus, 
 html.dark input:-webkit-autofill:active {
-  -webkit-text-fill-color: #f8fafc !important;
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
 }
 
 /* Hide scrollbar utilities */
