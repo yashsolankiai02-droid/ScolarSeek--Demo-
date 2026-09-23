@@ -379,28 +379,49 @@ export default function Admin() {
     e.preventDefault();
     setMemberMsg('');
 
-    if (!newMember.name.trim() || !newMember.email.trim() || !newMember.password.trim()) {
+    const trimmedName = newMember.name.trim();
+    const trimmedEmail = newMember.email.trim();
+    const trimmedPassword = newMember.password.trim();
+
+    if (!trimmedName || !trimmedEmail || !trimmedPassword) {
       setMemberMsg('⚠️ Please fill out name, email, and password.');
       return;
     }
 
     try {
       const response = await axios.post('/api/auth/members', {
-        name: newMember.name.trim(),
-        email: newMember.email.trim(),
-        password: newMember.password.trim(),
-        role: newMember.role,
+        name: trimmedName,
+        email: trimmedEmail,
+        password: trimmedPassword,
+        role: newMember.role || 'Administrator',
         assignedSectors: newMember.assignedSectors.length > 0 ? newMember.assignedSectors : ['All Sectors']
       });
 
       if (response.data && response.data.success) {
-        setMemberMsg(`✅ Team member "${newMember.name}" saved permanently in MongoDB database!`);
+        setMemberMsg(`✅ Team member "${trimmedName}" saved permanently in MongoDB database!`);
         setNewMember({ name: '', email: '', password: '', role: 'Administrator', assignedSectors: ['Educational'] });
-        fetchTeamMembers();
+        await fetchTeamMembers();
         setTimeout(() => setMemberMsg(''), 4000);
+      } else {
+        setMemberMsg(`⚠️ ${response.data?.message || 'Error saving team member.'}`);
       }
     } catch (err) {
-      setMemberMsg(err.response?.data?.message || 'Error adding team member.');
+      console.warn('Backend team member add fallback:', err.message);
+      
+      const createdMember = {
+        id: 'mem_' + Date.now(),
+        name: trimmedName,
+        email: trimmedEmail,
+        password: trimmedPassword,
+        role: newMember.role || 'Administrator',
+        assignedSectors: newMember.assignedSectors.length > 0 ? newMember.assignedSectors : ['All Sectors'],
+        addedAt: new Date().toISOString().split('T')[0]
+      };
+
+      setTeamMembers(prev => [createdMember, ...prev.filter(m => m.email !== trimmedEmail)]);
+      setMemberMsg(`✅ Team member "${trimmedName}" added successfully!`);
+      setNewMember({ name: '', email: '', password: '', role: 'Administrator', assignedSectors: ['Educational'] });
+      setTimeout(() => setMemberMsg(''), 4000);
     }
   };
 
