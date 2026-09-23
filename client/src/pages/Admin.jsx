@@ -612,8 +612,14 @@ export default function Admin() {
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
+                    id="admin-super-email"
+                    name="email"
                     type="email"
                     required
+                    autoComplete="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck="false"
                     value={superEmail}
                     onChange={(e) => setSuperEmail(e.target.value)}
                     placeholder="Enter Email"
@@ -623,14 +629,20 @@ export default function Admin() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="admin-super-password" className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1 cursor-pointer">
                   Super Admin Password *
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
+                    id="admin-super-password"
+                    name="password"
                     type="password"
                     required
+                    autoComplete="current-password"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck="false"
                     value={inputPass}
                     onChange={(e) => setInputPass(e.target.value)}
                     placeholder="Enter Password"
@@ -655,8 +667,14 @@ export default function Admin() {
                   Website Email ID *
                 </label>
                 <input
+                  id="admin-member-email"
+                  name="email"
                   type="email"
                   required
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck="false"
                   value={memberEmail}
                   onChange={(e) => setMemberEmail(e.target.value)}
                   placeholder="Enter Email"
@@ -665,12 +683,18 @@ export default function Admin() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="admin-member-password" className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1 cursor-pointer">
                   Password *
                 </label>
                 <input
+                  id="admin-member-password"
+                  name="password"
                   type="password"
                   required
+                  autoComplete="current-password"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck="false"
                   value={memberPass}
                   onChange={(e) => setMemberPass(e.target.value)}
                   placeholder="Enter password"

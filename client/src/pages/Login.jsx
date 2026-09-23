@@ -191,6 +191,9 @@ export default function Login() {
                 name="email"
                 type="email"
                 autoComplete="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter Email"
@@ -209,6 +212,9 @@ export default function Login() {
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete={isSignUp ? 'new-password' : 'current-password'}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter Password"
