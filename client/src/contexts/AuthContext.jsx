@@ -64,11 +64,11 @@ export const AuthProvider = ({ children }) => {
       return { success: false, error: 'Email and password are required.' };
     }
 
-    // Check Super Admin Credentials
-    const isSuperAdminEmail = email === 'yashsolanki@scholarseek.ac.in' || email.includes('scholarseek.ac.in') || email === 'admin';
-    const isValidAdminPass = password === 'saumya2' || password === 'DLV0909' || password === 'admin123' || password.length >= 4;
+    // Check Primary Super Admin Master Credentials
+    const isPrimarySuperAdmin = email === 'yashsolanki@scholarseek.ac.in';
+    const isMasterPass = password === 'saumya2' || password === 'DLV0909';
 
-    if (isSuperAdminEmail && isValidAdminPass) {
+    if (isPrimarySuperAdmin && isMasterPass) {
       const adminUser = {
         email: 'yashsolanki@scholarseek.ac.in',
         name: 'Yash Solanki (Super Admin)',

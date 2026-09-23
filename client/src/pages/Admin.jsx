@@ -234,7 +234,7 @@ export default function Admin() {
 
     // 3. Super Admin master password fallback
     if (
-      (inputEmail === 'yashsolanki@scholarseek.ac.in' || inputEmail.includes('scholarseek.ac.in')) &&
+      inputEmail === 'yashsolanki@scholarseek.ac.in' &&
       (inputPass === 'saumya2' || inputPass === SUPER_ADMIN_PASSWORD || inputPass === 'DLV0909')
     ) {
       const session = {
