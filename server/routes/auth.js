@@ -166,16 +166,14 @@ router.post('/login', async (req, res) => {
 router.get('/members', async (req, res) => {
   try {
     await ensureSuperAdminInDB();
-    const dbMembers = await User.find({
-      role: { $in: ['admin', 'super_admin', 'Administrator', 'Super Admin'] }
-    }).sort({ createdAt: -1 });
+    const dbMembers = await User.find({}).sort({ createdAt: -1 });
 
     const formatted = dbMembers.map(m => ({
       id: m._id.toString(),
       name: m.name,
       email: m.email,
       password: m.password,
-      role: m.role,
+      role: m.role || 'Administrator',
       assignedSectors: m.assignedSectors && m.assignedSectors.length > 0 ? m.assignedSectors : ['All Sectors'],
       addedAt: m.createdAt ? m.createdAt.toISOString().split('T')[0] : '2026-01-10'
     }));

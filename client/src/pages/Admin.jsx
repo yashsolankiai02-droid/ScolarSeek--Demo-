@@ -84,14 +84,26 @@ export default function Admin() {
   const [scholarships, setScholarships] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
-  // Team Member Management State
-  const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
+  // Team Member Management State with localStorage & MongoDB persistence
+  const [teamMembers, setTeamMembers] = useState(() => {
+    try {
+      const saved = localStorage.getItem('scholarseek_team_members');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return initialTeamMembers;
+  });
 
   const fetchTeamMembers = async () => {
     try {
       const res = await axios.get('/api/auth/members');
-      if (res.data && res.data.success && Array.isArray(res.data.members)) {
+      if (res.data && res.data.success && Array.isArray(res.data.members) && res.data.members.length > 0) {
         setTeamMembers(res.data.members);
+        try {
+          localStorage.setItem('scholarseek_team_members', JSON.stringify(res.data.members));
+        } catch (e) {}
       }
     } catch (e) {
       console.warn('Error fetching team members from MongoDB:', e.message);
@@ -442,6 +454,14 @@ export default function Admin() {
       if (response.data && response.data.success) {
         setMemberMsg(`✅ Team member "${trimmedName}" saved permanently in MongoDB database!`);
         setNewMember({ name: '', email: '', password: '', role: 'Administrator', assignedSectors: ['Educational'] });
+        
+        if (response.data.member) {
+          setTeamMembers(prev => {
+            const updated = [response.data.member, ...prev.filter(m => m.email !== trimmedEmail)];
+            try { localStorage.setItem('scholarseek_team_members', JSON.stringify(updated)); } catch (e) {}
+            return updated;
+          });
+        }
         await fetchTeamMembers();
         setTimeout(() => setMemberMsg(''), 4000);
       } else {
@@ -460,7 +480,11 @@ export default function Admin() {
         addedAt: new Date().toISOString().split('T')[0]
       };
 
-      setTeamMembers(prev => [createdMember, ...prev.filter(m => m.email !== trimmedEmail)]);
+      setTeamMembers(prev => {
+        const updated = [createdMember, ...prev.filter(m => m.email !== trimmedEmail)];
+        try { localStorage.setItem('scholarseek_team_members', JSON.stringify(updated)); } catch (e) {}
+        return updated;
+      });
       setMemberMsg(`✅ Team member "${trimmedName}" added successfully!`);
       setNewMember({ name: '', email: '', password: '', role: 'Administrator', assignedSectors: ['Educational'] });
       setTimeout(() => setMemberMsg(''), 4000);
