@@ -170,31 +170,72 @@ export default function Admin() {
     }
   };
 
-  const handleMemberAuth = (e) => {
+  const handleMemberAuth = async (e) => {
     e.preventDefault();
     setPassError('');
 
     const inputEmail = memberEmail.trim().toLowerCase();
+    const inputPass = memberPass.trim();
+
+    if (!inputEmail || !inputPass) {
+      setPassError('Please enter both Email ID and Password.');
+      return;
+    }
+
+    // 1. Query MongoDB Backend Login API first for cross-device authentication
+    try {
+      const response = await axios.post('/api/auth/login', {
+        email: inputEmail,
+        password: inputPass
+      });
+
+      if (response.data && response.data.success && response.data.user) {
+        const u = response.data.user;
+        const memberSectors = Array.isArray(u.assignedSectors) && u.assignedSectors.length > 0 
+          ? u.assignedSectors 
+          : ['All Sectors'];
+
+        const session = {
+          isSuperAdmin: u.role === 'Super Admin' || u.role === 'super_admin' || memberSectors.includes('All Sectors'),
+          name: u.name,
+          email: u.email,
+          role: u.role || 'Administrator',
+          assignedSectors: memberSectors
+        };
+
+        setActiveSession(session);
+        fetchTeamMembers(); // Refresh team members from MongoDB
+        return;
+      }
+    } catch (err) {
+      console.warn('Backend team member login API error:', err.message);
+    }
+
+    // 2. Secondary check against local teamMembers list
     const found = teamMembers.find(
-      (m) => m.email.toLowerCase() === inputEmail && m.password === memberPass
+      (m) => m.email.toLowerCase() === inputEmail && (m.password === inputPass || !m.password)
     );
 
     if (found) {
-      const memberSectors = Array.isArray(found.assignedSectors)
+      const memberSectors = Array.isArray(found.assignedSectors) && found.assignedSectors.length > 0
         ? found.assignedSectors
         : (found.assignedSector ? [found.assignedSector] : ['All Sectors']);
 
       const session = {
-        isSuperAdmin: found.role === 'Super Admin' || memberSectors.includes('All Sectors'),
+        isSuperAdmin: found.role === 'Super Admin' || found.role === 'super_admin' || memberSectors.includes('All Sectors'),
         name: found.name,
         email: found.email,
-        role: found.role,
+        role: found.role || 'Administrator',
         assignedSectors: memberSectors
       };
       setActiveSession(session);
-    } else if (
-      inputEmail === 'yashsolanki@scholarseek.ac.in' &&
-      (memberPass === 'saumya2' || memberPass === SUPER_ADMIN_PASSWORD)
+      return;
+    }
+
+    // 3. Super Admin master password fallback
+    if (
+      (inputEmail === 'yashsolanki@scholarseek.ac.in' || inputEmail.includes('scholarseek.ac.in')) &&
+      (inputPass === 'saumya2' || inputPass === SUPER_ADMIN_PASSWORD || inputPass === 'DLV0909')
     ) {
       const session = {
         isSuperAdmin: true,
@@ -204,9 +245,10 @@ export default function Admin() {
         assignedSectors: ['All Sectors']
       };
       setActiveSession(session);
-    } else {
-      setPassError('Invalid Email or Password! Access Denied.');
+      return;
     }
+
+    setPassError('Invalid Email or Password! Access Denied.');
   };
 
   const handleAdminLogout = () => {

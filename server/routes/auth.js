@@ -113,19 +113,34 @@ router.post('/login', async (req, res) => {
     }
 
     // Check MongoDB User
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') } });
 
-    if (!user) {
-      // Auto-create user in MongoDB for seamless account availability across all phones/browsers
-      const formattedName = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      user = await User.create({
-        name: formattedName || 'Student',
-        email,
-        password,
-        role: 'student',
-        assignedSectors: ['All Sectors']
+    if (user) {
+      if (user.password && user.password !== password) {
+        return res.status(400).json({ success: false, error: 'Invalid Email or Password! Access Denied.' });
+      }
+
+      return res.status(200).json({
+        success: true,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role || 'Administrator',
+          assignedSectors: user.assignedSectors && user.assignedSectors.length > 0 ? user.assignedSectors : ['All Sectors']
+        }
       });
     }
+
+    // Auto-create user in MongoDB for seamless account availability across all phones/browsers
+    const formattedName = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    user = await User.create({
+      name: formattedName || 'Student',
+      email,
+      password,
+      role: 'student',
+      assignedSectors: ['All Sectors']
+    });
 
     res.status(200).json({
       success: true,
