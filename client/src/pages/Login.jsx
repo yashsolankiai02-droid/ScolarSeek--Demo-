@@ -57,7 +57,10 @@ export default function Login() {
       
       const result = await login(email.trim(), password);
       if (result.success) {
-        if (result.user?.role === 'super_admin' || result.user?.email?.includes('scholarseek.ac.in')) {
+        const userRole = (result.user?.role || '').toLowerCase();
+        const isAdminUser = userRole.includes('admin') || userRole.includes('administrator') || result.user?.email?.includes('scholarseek.ac.in');
+        
+        if (isAdminUser) {
           window.location.href = '/admin';
         } else {
           window.location.href = '/dashboard';
