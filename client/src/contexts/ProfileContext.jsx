@@ -46,6 +46,7 @@ export const ProfileProvider = ({ children }) => {
   };
 
   const calculateCompletion = () => {
+    if (!profile) return 0;
     const requiredFields = [
       'name', 'age', 'gender', 'state', 'district',
       'educationLevel', 'course', 'institution', 'year',
@@ -53,7 +54,8 @@ export const ProfileProvider = ({ children }) => {
     ];
     let completed = 0;
     requiredFields.forEach(field => {
-      if (profile[field] && profile[field].trim() !== '') {
+      const val = profile[field];
+      if (val !== undefined && val !== null && String(val).trim() !== '') {
         completed++;
       }
     });
