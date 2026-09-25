@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { 
   PlusCircle, CheckCircle2, AlertCircle, ArrowLeft, Lock, Edit2, Trash2, X, 
-  UserPlus, Users, ShieldCheck, KeyRound, UserCheck, LogOut, Globe2, Key, ShieldAlert, Check, Mail
+  UserPlus, Users, ShieldCheck, KeyRound, UserCheck, LogOut, Globe2, Key, ShieldAlert, Check, Mail, Eye, EyeOff
 } from 'lucide-react';
 
 const SUPER_ADMIN_PASSWORD = 'DLV0909';
@@ -124,6 +124,11 @@ export default function Admin() {
 
   // Edit Member Modal State
   const [editingMember, setEditingMember] = useState(null);
+  const [showPassMap, setShowPassMap] = useState({});
+
+  const toggleShowPass = (id) => {
+    setShowPassMap(prev => ({ ...prev, [id]: !prev[id] }));
+  };
   
   const [memberMsg, setMemberMsg] = useState('');
   const [loading, setLoading] = useState(false);
@@ -203,6 +208,12 @@ export default function Admin() {
 
       if (response.data && response.data.success && response.data.user) {
         const u = response.data.user;
+
+        if (u.role === 'student' && u.email !== 'yashsolanki@scholarseek.ac.in') {
+          setPassError('Access Denied: Student accounts cannot access the Team Admin Portal.');
+          return;
+        }
+
         const memberSectors = Array.isArray(u.assignedSectors) && u.assignedSectors.length > 0 
           ? u.assignedSectors 
           : ['All Sectors'];
@@ -221,11 +232,15 @@ export default function Admin() {
       }
     } catch (err) {
       console.warn('Backend team member login API error:', err.message);
+      if (err.response && err.response.data && err.response.data.error) {
+        setPassError(err.response.data.error);
+        return;
+      }
     }
 
     // 2. Secondary check against local teamMembers list
     const found = teamMembers.find(
-      (m) => m.email.toLowerCase() === inputEmail && (m.password === inputPass || !m.password)
+      (m) => m.email.toLowerCase() === inputEmail && m.password === inputPass
     );
 
     if (found) {
@@ -531,12 +546,12 @@ export default function Admin() {
     }
   };
 
-  const handleDeleteMember = async (id, name) => {
+  const handleDeleteMember = async (id, name, email) => {
     const confirmDelete = window.confirm(`Remove team member "${name}" permanently from MongoDB database?`);
     if (!confirmDelete) return;
 
     try {
-      const response = await axios.delete(`/api/auth/members/${id}`);
+      const response = await axios.delete(`/api/auth/members/${id}?email=${encodeURIComponent(email || '')}`);
       if (response.data && response.data.success) {
         setMemberMsg(`🗑️ Member "${name}" deleted permanently from MongoDB.`);
         fetchTeamMembers();
@@ -936,20 +951,36 @@ export default function Admin() {
                       {member.name.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <h4 className="text-xs font-bold text-gray-900 dark:text-white">{member.name}</h4>
                         <span className="text-[10px] font-mono bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">
                           {member.email}
                         </span>
                       </div>
                       
-                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                         <span className="text-[10px] text-gray-400 font-medium">Assigned Sectors:</span>
                         {memberSectors.map(sec => (
                           <span key={sec} className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-brand-50 dark:bg-brand-950 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
                             {sec}
                           </span>
                         ))}
+
+                        {/* Password Reveal Badge for Super Admin */}
+                        {member.password && (
+                          <span className="text-[10px] font-mono bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800 flex items-center space-x-1.5 ml-1">
+                            <Key className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                            <span>Pass: <strong>{showPassMap[member.id] ? member.password : '••••••••'}</strong></span>
+                            <button
+                              type="button"
+                              onClick={() => toggleShowPass(member.id)}
+                              className="p-0.5 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+                              title={showPassMap[member.id] ? "Hide Password" : "Show Password"}
+                            >
+                              {showPassMap[member.id] ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                            </button>
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -970,7 +1001,7 @@ export default function Admin() {
                     </button>
 
                     <button
-                      onClick={() => handleDeleteMember(member.id, member.name)}
+                      onClick={() => handleDeleteMember(member.id, member.name, member.email)}
                       className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                       title="Delete Member"
                     >

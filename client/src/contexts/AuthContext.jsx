@@ -39,9 +39,14 @@ export const AuthProvider = ({ children }) => {
       if (response.data && response.data.success && response.data.user) {
         saveUser(response.data.user);
         return { success: true, user: response.data.user };
+      } else if (response.data && response.data.error) {
+        return { success: false, error: response.data.error };
       }
     } catch (e) {
-      console.warn('Backend signup API fallback to local:', e.message);
+      console.warn('Backend signup API error:', e.message);
+      if (e.response && e.response.data && e.response.data.error) {
+        return { success: false, error: e.response.data.error };
+      }
     }
 
     // Local Storage Fallback
@@ -83,17 +88,18 @@ export const AuthProvider = ({ children }) => {
       if (response.data && response.data.success && response.data.user) {
         saveUser(response.data.user);
         return { success: true, user: response.data.user };
+      } else if (response.data && response.data.error) {
+        return { success: false, error: response.data.error };
       }
     } catch (e) {
-      console.warn('Backend login API fallback to local:', e.message);
+      console.warn('Backend login API error:', e.message);
+      if (e.response && e.response.data && e.response.data.error) {
+        return { success: false, error: e.response.data.error };
+      }
+      return { success: false, error: 'Invalid Email or Password! Access Denied.' };
     }
 
-    // Fallback for created accounts
-    const formattedName = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    const autoUser = { email, name: formattedName || 'Student', role: 'student' };
-
-    saveUser(autoUser);
-    return { success: true, user: autoUser };
+    return { success: false, error: 'Invalid Email or Password! Access Denied.' };
   };
 
   const logout = () => {
@@ -109,3 +115,4 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+

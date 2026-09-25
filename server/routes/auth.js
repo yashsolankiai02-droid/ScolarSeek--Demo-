@@ -38,19 +38,30 @@ const ensureSuperAdminInDB = async () => {
 router.post('/register', async (req, res) => {
   try {
     await ensureSuperAdminInDB();
-    const { email: rawEmail, password, name } = req.body;
+    const { email: rawEmail, password: rawPassword, name: rawName } = req.body;
     const email = (rawEmail || '').trim().toLowerCase();
+    const password = (rawPassword || '').trim();
+    const name = (rawName || '').trim();
 
     if (!email || !password) {
       return res.status(400).json({ success: false, error: 'Email and password are required' });
     }
 
     let existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      existingUser = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') } });
+    }
+
     if (existingUser) {
+      if (password) {
+        existingUser.password = password;
+        if (name) existingUser.name = name;
+        await existingUser.save();
+      }
       return res.status(200).json({
         success: true,
         user: {
-          id: existingUser._id,
+          id: existingUser._id.toString(),
           name: existingUser.name,
           email: existingUser.email,
           role: existingUser.role,
@@ -60,7 +71,7 @@ router.post('/register', async (req, res) => {
     }
 
     const newUser = await User.create({
-      name: (name || '').trim() || email.split('@')[0],
+      name: name || email.split('@')[0],
       email,
       password,
       role: 'student',
@@ -70,7 +81,7 @@ router.post('/register', async (req, res) => {
     res.status(201).json({
       success: true,
       user: {
-        id: newUser._id,
+        id: newUser._id.toString(),
         name: newUser.name,
         email: newUser.email,
         role: newUser.role,
@@ -106,14 +117,17 @@ router.post('/login', async (req, res) => {
           id: 'mem_1',
           name: 'Yash Solanki (Super Admin)',
           email: 'yashsolanki@scholarseek.ac.in',
-          role: 'super_admin',
+          role: 'Super Admin',
           assignedSectors: ['All Sectors']
         }
       });
     }
 
     // Check MongoDB User
-    let user = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') } });
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') } });
+    }
 
     if (user) {
       if (user.password && user.password !== password) {
@@ -123,7 +137,7 @@ router.post('/login', async (req, res) => {
       return res.status(200).json({
         success: true,
         user: {
-          id: user._id,
+          id: user._id.toString(),
           name: user.name,
           email: user.email,
           role: user.role || 'Administrator',
@@ -145,7 +159,7 @@ router.post('/login', async (req, res) => {
     res.status(200).json({
       success: true,
       user: {
-        id: user._id,
+        id: user._id.toString(),
         name: user.name,
         email: user.email,
         role: user.role,
@@ -192,14 +206,20 @@ router.get('/members', async (req, res) => {
 // Add New Team Member in MongoDB
 router.post('/members', async (req, res) => {
   try {
-    const { name, email: rawEmail, password, role, assignedSectors } = req.body;
+    const { name: rawName, email: rawEmail, password: rawPassword, role, assignedSectors } = req.body;
     const email = (rawEmail || '').trim().toLowerCase();
+    const password = (rawPassword || '').trim();
+    const name = (rawName || '').trim();
 
     if (!email || !password || !name) {
       return res.status(400).json({ success: false, message: 'Name, email, and password are required' });
     }
 
-    let existing = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') } });
+    let existing = await User.findOne({ email });
+    if (!existing) {
+      existing = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') } });
+    }
+
     if (existing) {
       existing.name = name;
       existing.password = password;
@@ -240,7 +260,7 @@ router.post('/members', async (req, res) => {
         password: newMember.password,
         role: newMember.role,
         assignedSectors: newMember.assignedSectors,
-        addedAt: newMember.createdAt.toISOString().split('T')[0]
+        addedAt: newMember.createdAt ? newMember.createdAt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
       }
     });
   } catch (error) {
@@ -249,8 +269,11 @@ router.post('/members', async (req, res) => {
     // Duplicate Key fallback for Mongo Index E11000
     if (error.code === 11000 || error.message.includes('E11000')) {
       try {
-        const { name, email: rawEmail, password, role, assignedSectors } = req.body;
+        const { name: rawName, email: rawEmail, password: rawPassword, role, assignedSectors } = req.body;
         const email = (rawEmail || '').trim().toLowerCase();
+        const password = (rawPassword || '').trim();
+        const name = (rawName || '').trim();
+
         let existing = await User.findOne({ email });
         if (existing) {
           existing.name = name;
@@ -276,19 +299,7 @@ router.post('/members', async (req, res) => {
       } catch (err2) {}
     }
 
-    res.status(200).json({
-      success: true,
-      message: 'Member added successfully',
-      member: {
-        id: 'mem_' + Date.now(),
-        name: req.body.name,
-        email: (req.body.email || '').trim().toLowerCase(),
-        password: req.body.password,
-        role: req.body.role || 'Administrator',
-        assignedSectors: req.body.assignedSectors || ['All Sectors'],
-        addedAt: new Date().toISOString().split('T')[0]
-      }
-    });
+    res.status(500).json({ success: false, message: error.message || 'Failed to add team member' });
   }
 });
 
@@ -296,12 +307,20 @@ router.post('/members', async (req, res) => {
 router.put('/members/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email: rawEmail, password, role, assignedSectors } = req.body;
+    const { name: rawName, email: rawEmail, password: rawPassword, role, assignedSectors } = req.body;
     const email = (rawEmail || '').trim().toLowerCase();
+    const password = (rawPassword || '').trim();
+    const name = (rawName || '').trim();
 
-    let member = await User.findById(id);
+    let member = null;
+    if (id && id.match(/^[0-9a-fA-F]{24}$/)) {
+      member = await User.findById(id);
+    }
     if (!member && email) {
       member = await User.findOne({ email });
+      if (!member) {
+        member = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') } });
+      }
     }
 
     if (!member) {
@@ -348,7 +367,14 @@ router.delete('/members/:id', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Cannot delete primary Super Admin' });
     }
 
-    await User.findByIdAndDelete(id);
+    if (id && id.match(/^[0-9a-fA-F]{24}$/)) {
+      await User.findByIdAndDelete(id);
+    } else {
+      const { email } = req.query;
+      if (email) {
+        await User.findOneAndDelete({ email: email.toLowerCase() });
+      }
+    }
     res.status(200).json({ success: true, message: 'Member deleted permanently from MongoDB' });
   } catch (error) {
     console.error('Delete Member error:', error);
@@ -357,3 +383,4 @@ router.delete('/members/:id', async (req, res) => {
 });
 
 module.exports = router;
+
