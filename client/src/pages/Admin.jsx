@@ -3,8 +3,11 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { 
   PlusCircle, CheckCircle2, AlertCircle, ArrowLeft, Lock, Edit2, Trash2, X, 
-  UserPlus, Users, ShieldCheck, KeyRound, UserCheck, LogOut, Globe2, Key, ShieldAlert, Check, Mail, Eye, EyeOff
+  UserPlus, Users, ShieldCheck, KeyRound, UserCheck, LogOut, Globe2, Key, ShieldAlert, Check, Mail, Eye, EyeOff,
+  Sun, Moon, Globe, GraduationCap, Sparkles
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const SUPER_ADMIN_PASSWORD = 'DLV0909';
 
@@ -65,6 +68,8 @@ const initialTeamMembers = [
 
 export default function Admin() {
   const navigate = useNavigate();
+  const { user, logout: authLogout } = useAuth();
+  const { lang, setLang, darkMode, toggleDarkMode } = useLanguage();
 
   // Authentication State
   const [loginMethod, setLoginMethod] = useState('super'); // 'super' or 'member'
@@ -75,9 +80,66 @@ export default function Admin() {
   const [passError, setPassError] = useState('');
   
   const [activeSession, setActiveSession] = useState(() => {
-    const saved = sessionStorage.getItem('admin_active_session');
-    return saved ? JSON.parse(saved) : null;
+    // 1. Try session storage first
+    try {
+      const saved = sessionStorage.getItem('admin_active_session');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+
+    // 2. Fallback to auth_user from AuthContext / localStorage if team member or super admin
+    try {
+      const authUserStr = localStorage.getItem('auth_user');
+      if (authUserStr) {
+        const u = JSON.parse(authUserStr);
+        const email = (u?.email || '').toLowerCase();
+        const role = (u?.role || '').toLowerCase();
+        const isTeamOrAdmin = role.includes('admin') || role.includes('administrator') || email.includes('scholarseek.ac.in');
+        
+        if (isTeamOrAdmin) {
+          const memberSectors = Array.isArray(u.assignedSectors) && u.assignedSectors.length > 0
+            ? u.assignedSectors
+            : ['All Sectors'];
+
+          const sessionObj = {
+            isSuperAdmin: role === 'super_admin' || role === 'super admin' || email === 'yashsolanki@scholarseek.ac.in' || memberSectors.includes('All Sectors'),
+            name: u.name || 'Team Admin',
+            email: u.email,
+            role: u.role || 'Administrator',
+            assignedSectors: memberSectors
+          };
+          try { sessionStorage.setItem('admin_active_session', JSON.stringify(sessionObj)); } catch (e) {}
+          return sessionObj;
+        }
+      }
+    } catch (e) {}
+
+    return null;
   });
+
+  // Sync activeSession whenever user state changes in AuthContext
+  useEffect(() => {
+    if (user && !activeSession) {
+      const email = (user.email || '').toLowerCase();
+      const role = (user.role || '').toLowerCase();
+      const isTeamOrAdmin = role.includes('admin') || role.includes('administrator') || email.includes('scholarseek.ac.in');
+      
+      if (isTeamOrAdmin) {
+        const memberSectors = Array.isArray(user.assignedSectors) && user.assignedSectors.length > 0
+          ? user.assignedSectors
+          : ['All Sectors'];
+
+        const sessionObj = {
+          isSuperAdmin: role === 'super_admin' || role === 'super admin' || email === 'yashsolanki@scholarseek.ac.in' || memberSectors.includes('All Sectors'),
+          name: user.name || 'Team Admin',
+          email: user.email,
+          role: user.role || 'Administrator',
+          assignedSectors: memberSectors
+        };
+        setActiveSession(sessionObj);
+        try { sessionStorage.setItem('admin_active_session', JSON.stringify(sessionObj)); } catch (e) {}
+      }
+    }
+  }, [user, activeSession]);
 
   // Scholarship State
   const [formData, setFormData] = useState(emptyForm);
@@ -280,9 +342,11 @@ export default function Admin() {
 
   const handleAdminLogout = () => {
     setActiveSession(null);
+    try { sessionStorage.removeItem('admin_active_session'); } catch (e) {}
     setInputPass('');
     setMemberEmail('');
     setMemberPass('');
+    if (authLogout) authLogout();
   };
 
   const fetchScholarships = async () => {
@@ -785,72 +849,112 @@ export default function Admin() {
   // AUTHENTICATED ADMIN PORTAL
   // ==========================================
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 text-slate-100 relative overflow-hidden transition-colors duration-300 pb-16">
       
-      {/* Top Header Bar */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center text-xs font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-1.5" />
-          Back to Website
-        </button>
+      {/* Decorative Vibrant Multi-Colored Ambient Gradient Blobs */}
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-gradient-to-tr from-brand-600/20 via-indigo-600/20 to-purple-600/20 rounded-full blur-[160px] pointer-events-none animate-pulse" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-40 left-10 w-96 h-96 bg-cyan-500/15 rounded-full blur-[120px] pointer-events-none" />
 
+      {/* Top Brand Navbar */}
+      <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-xl">
         <div className="flex items-center space-x-3">
-          <div className="text-right">
-            <span className="block text-xs font-bold text-gray-900 dark:text-white">{activeSession.name}</span>
-            <span className="block text-[10px] text-gray-500 dark:text-gray-400">
-              Sectors: <strong className="text-brand-600 dark:text-brand-400">{allowedSectors.length === SECTORS_LIST.length ? 'All Sectors' : allowedSectors.join(', ')}</strong>
-            </span>
-          </div>
-
-          <button
-            onClick={handleAdminLogout}
-            className="inline-flex items-center text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-900 transition-colors cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5 mr-1" />
-            <span>Logout Session</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Title Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center space-x-3">
-          <div className="p-3 bg-brand-600 rounded-2xl text-white shadow-lg">
-            {editingId ? <Edit2 className="w-6 h-6" /> : <PlusCircle className="w-6 h-6" />}
+          <div className="p-2.5 bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 rounded-xl text-white shadow-md ring-1 ring-white/20">
+            <GraduationCap className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-              {activeSession.isSuperAdmin ? 'Super Admin Portal' : `Team Portal (${allowedSectors.length} Sectors Assigned)`}
-            </h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              Multi-sector delegation, bilingual (English &amp; Hindi) scholarship authoring, and member editing controls.
-            </p>
+            <span className="text-xl font-black text-white tracking-tight flex items-center">
+              Scholar<span className="bg-gradient-to-r from-brand-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent ml-0.5">Seek Admin</span>
+            </span>
+            <p className="text-[10px] font-bold text-indigo-300 tracking-wide">Official Team Management Portal</p>
           </div>
         </div>
 
-        <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
-          <UserCheck className="w-3.5 h-3.5 mr-1" />
-          <span>{activeSession.isSuperAdmin ? 'Super Admin' : activeSession.role}</span>
-        </div>
-      </div>
+        <div className="flex items-center space-x-3">
+          {/* Language Selector */}
+          <div className="hidden sm:flex items-center space-x-1 bg-slate-800/90 border border-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-200 shadow-sm">
+            <Globe className="w-3.5 h-3.5 text-indigo-400" />
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+              className="bg-transparent text-slate-100 outline-none cursor-pointer font-bold"
+            >
+              <option value="English" className="bg-slate-900 text-white">English</option>
+              <option value="Hindi" className="bg-slate-900 text-white">हिन्दी</option>
+              <option value="Gujarati" className="bg-slate-900 text-white">ગુજરાતી</option>
+            </select>
+          </div>
 
-      {/* System Notifications */}
-      {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-sm font-semibold flex items-center space-x-2">
-          <CheckCircle2 className="w-5 h-5 shrink-0" />
-          <span>{successMsg}</span>
-        </div>
-      )}
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleDarkMode}
+            type="button"
+            title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            className="flex items-center space-x-1 px-3 py-1.5 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-xs font-black text-white rounded-xl transition-all shadow-sm cursor-pointer active:scale-95"
+          >
+            {darkMode ? <Sun className="h-4 w-4 text-amber-400 animate-spin-slow" /> : <Moon className="h-4 w-4 text-indigo-400" />}
+            <span className="hidden sm:inline">{darkMode ? 'Dark' : 'Light'}</span>
+          </button>
 
-      {errorMsg && (
-        <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 text-sm font-semibold flex items-center space-x-2">
-          <AlertCircle className="w-5 h-5 shrink-0" />
-          <span>{errorMsg}</span>
+          {/* User Profile & Logout */}
+          <div className="flex items-center space-x-2 border-l border-slate-800 pl-3">
+            <div className="text-right hidden sm:block">
+              <span className="block text-xs font-black text-white">{activeSession.name}</span>
+              <span className="block text-[10px] text-slate-400">
+                <strong className="text-indigo-400">{allowedSectors.length === SECTORS_LIST.length ? 'All Sectors' : `${allowedSectors.length} Sectors`}</strong>
+              </span>
+            </div>
+
+            <button
+              onClick={handleAdminLogout}
+              className="inline-flex items-center text-xs font-extrabold text-red-300 hover:text-white bg-red-950/60 hover:bg-red-900/80 px-3 py-1.5 rounded-xl border border-red-800/80 transition-all cursor-pointer shadow-md active:scale-95"
+            >
+              <LogOut className="w-3.5 h-3.5 mr-1 text-red-400" />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
-      )}
+      </header>
+
+      {/* Main Admin Content Container */}
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
+        
+        {/* Title Header Banner */}
+        <div className="bg-slate-900/90 backdrop-blur-2xl border border-slate-700/80 rounded-3xl p-6 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 ring-1 ring-white/10">
+          <div className="flex items-center space-x-3.5">
+            <div className="p-3.5 bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 rounded-2xl text-white shadow-xl shadow-indigo-500/30 ring-2 ring-white/20">
+              {editingId ? <Edit2 className="w-6 h-6" /> : <PlusCircle className="w-6 h-6" />}
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                {activeSession.isSuperAdmin ? 'Super Admin Portal' : `Team Member Portal (${allowedSectors.length} Sectors Assigned)`}
+              </h1>
+              <p className="text-xs font-semibold text-slate-300 mt-1">
+                Multi-sector delegation, bilingual scholarship management, and team access control.
+              </p>
+            </div>
+          </div>
+
+          <div className="inline-flex items-center px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-teal-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-extrabold shadow-md">
+            <UserCheck className="w-4 h-4 mr-1.5 text-emerald-400" />
+            <span>{activeSession.isSuperAdmin ? 'Super Admin (Full Access)' : activeSession.role}</span>
+          </div>
+        </div>
+
+        {/* System Notifications */}
+        {successMsg && (
+          <div className="p-4 rounded-2xl bg-emerald-950/80 border border-emerald-600 text-emerald-200 text-sm font-extrabold flex items-center space-x-2 shadow-xl">
+            <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
+            <span>{successMsg}</span>
+          </div>
+        )}
+
+        {errorMsg && (
+          <div className="p-4 rounded-2xl bg-red-950/80 border border-red-600 text-red-200 text-sm font-extrabold flex items-center space-x-2 shadow-xl">
+            <AlertCircle className="w-5 h-5 shrink-0 text-red-400" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
 
       {/* ==========================================
           SECTION 1: SUPER ADMIN MULTI-SECTOR TEAM MANAGEMENT
@@ -1534,6 +1638,7 @@ export default function Admin() {
         )}
       </div>
 
+    </div>
     </div>
   );
 }
