@@ -4,19 +4,19 @@ import { GraduationCap, Heart, ShieldCheck, ExternalLink, Lock } from 'lucide-re
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-50 border-t border-gray-200 text-gray-600 mt-auto">
+    <footer className="bg-gray-50 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 text-gray-600 dark:text-slate-400 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           
           {/* Brand Col */}
           <div className="space-y-4 md:col-span-1">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-brand-600 rounded-lg text-gray-900">
+              <div className="p-2 bg-brand-600 rounded-lg text-white">
                 <GraduationCap className="w-6 h-6" />
               </div>
-              <span className="text-xl font-bold text-gray-900">ScholarSeek</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">ScholarSeek</span>
             </div>
-            <p className="text-sm text-gray-600 leading-relaxed">
+            <p className="text-sm text-gray-600 dark:text-slate-400 leading-relaxed">
               India's premier smart scholarship discovery portal. Tailored matching based on your sector, income, category, and state profile.
             </p>
             <div className="flex items-center space-x-2 text-xs text-brand-700">
@@ -27,7 +27,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-gray-900 font-semibold text-sm mb-4 uppercase tracking-wider">Quick Navigation</h4>
+            <h4 className="text-gray-900 dark:text-white font-semibold text-sm mb-4 uppercase tracking-wider">Quick Navigation</h4>
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link to="/" className="hover:text-brand-700 transition-colors">Home Page</Link>
@@ -49,7 +49,7 @@ export default function Footer() {
 
           {/* Sectors List */}
           <div>
-            <h4 className="text-gray-900 font-semibold text-sm mb-4 uppercase tracking-wider">Featured Sectors</h4>
+            <h4 className="text-gray-900 dark:text-white font-semibold text-sm mb-4 uppercase tracking-wider">Featured Sectors</h4>
             <ul className="space-y-2.5 text-sm">
               <li>
                 <Link to="/search?sector=Business%20%26%20Entrepreneurship" className="hover:text-brand-700 transition-colors">Business & Startups</Link>
@@ -68,7 +68,7 @@ export default function Footer() {
 
           {/* External Portals */}
           <div>
-            <h4 className="text-gray-900 font-semibold text-sm mb-4 uppercase tracking-wider">Government Portals</h4>
+            <h4 className="text-gray-900 dark:text-white font-semibold text-sm mb-4 uppercase tracking-wider">Government Portals</h4>
             <ul className="space-y-2.5 text-sm">
               <li>
                 <a href="https://scholarships.gov.in" target="_blank" rel="noreferrer" className="flex items-center hover:text-brand-700 transition-colors">
@@ -93,7 +93,7 @@ export default function Footer() {
 
         </div>
 
-        <div className="pt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
+        <div className="pt-8 border-t border-gray-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
           <p>© {new Date().getFullYear()} ScholarSeek Platform. All rights reserved.</p>
           <p className="flex items-center mt-4 sm:mt-0">
             Crafted with <Heart className="w-3.5 h-3.5 mx-1 text-red-500 fill-red-500" /> for Indian Students

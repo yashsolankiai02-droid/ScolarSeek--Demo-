@@ -22,11 +22,11 @@ const DesktopLayout = ({ children }) => {
   const pageTitle = getPageTitle(location.pathname);
 
   return (
-    <div className="flex min-h-screen bg-white dark:bg-black transition-colors">
+    <div className="flex min-h-screen bg-white dark:bg-slate-950 transition-colors">
       <Sidebar />
       <div className="flex-1 ml-60 flex flex-col">
         <TopBar title={pageTitle} />
-        <main className="flex-1 overflow-y-auto bg-white dark:bg-black">
+        <main className="flex-1 overflow-y-auto bg-white dark:bg-slate-950">
           {children}
         </main>
         <Footer />

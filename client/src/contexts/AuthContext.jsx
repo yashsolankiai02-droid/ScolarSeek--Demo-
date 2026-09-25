@@ -83,6 +83,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: adminUser };
     }
 
+    // Try backend API first
     try {
       const response = await axios.post('/api/auth/login', { email, password });
       if (response.data && response.data.success && response.data.user) {
@@ -96,7 +97,48 @@ export const AuthProvider = ({ children }) => {
       if (e.response && e.response.data && e.response.data.error) {
         return { success: false, error: e.response.data.error };
       }
-      return { success: false, error: 'Invalid Email or Password! Access Denied.' };
+      // Backend unreachable — fall through to local checks below
+    }
+
+    // Fallback: Check local team member accounts (for cross-device / offline login)
+    try {
+      const teamStr = localStorage.getItem('scholarseek_team_members');
+      if (teamStr) {
+        const members = JSON.parse(teamStr);
+        const found = members.find(m => (m.email || '').toLowerCase() === email && m.password === password);
+        if (found) {
+          const memberUser = {
+            email: found.email,
+            name: found.name || 'Team Member',
+            role: found.role || 'Administrator',
+            assignedSectors: found.assignedSectors || ['All Sectors']
+          };
+          saveUser(memberUser);
+          return { success: true, user: memberUser };
+        }
+      }
+    } catch (localErr) {
+      console.warn('Local team member lookup error:', localErr.message);
+    }
+
+    // Fallback: Check local student accounts (created via signup fallback)
+    try {
+      const accountsStr = localStorage.getItem('auth_accounts');
+      if (accountsStr) {
+        const accounts = JSON.parse(accountsStr);
+        const found = accounts.find(a => (a.email || '').toLowerCase() === email && a.password === password);
+        if (found) {
+          const localUser = {
+            email: found.email,
+            name: found.name || 'Student',
+            role: found.role || 'student'
+          };
+          saveUser(localUser);
+          return { success: true, user: localUser };
+        }
+      }
+    } catch (localErr) {
+      console.warn('Local account lookup error:', localErr.message);
     }
 
     return { success: false, error: 'Invalid Email or Password! Access Denied.' };
@@ -107,7 +149,7 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/login';
   };
 
-  const isAuthenticated = !!user || !!localStorage.getItem('auth_user');
+  const isAuthenticated = !!user;
 
   return (
     <AuthContext.Provider value={{ user, isAuthenticated, login, signup, logout }}>
