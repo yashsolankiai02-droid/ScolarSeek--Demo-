@@ -59,4 +59,9 @@ app.get(['/api', '/'], (req, res) => {
   res.status(404).json({ success: false, error: 'API Endpoint Not Found' });
 });
 
-module.exports = app;
+// Enable CORS preflight for all routes
+app.options('*', cors());
+
+module.exports = (req, res) => {
+  return app(req, res);
+};
