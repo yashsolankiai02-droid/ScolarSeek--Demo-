@@ -48,7 +48,7 @@ const ensureSuperAdminInDB = async () => {
 router.post('/register', async (req, res) => {
   try {
     await ensureSuperAdminInDB();
-    const { email: rawEmail, password: rawPassword, name: rawName } = req.body;
+    const { email: rawEmail, password: rawPassword, name: rawName } = req.body || {};
     const email = (rawEmail || '').trim().toLowerCase();
     const password = (rawPassword || '').trim();
     const name = (rawName || '').trim();
@@ -108,7 +108,7 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     await ensureSuperAdminInDB();
-    const { email: rawEmail, password: rawPassword } = req.body;
+    const { email: rawEmail, password: rawPassword } = req.body || {};
     const email = (rawEmail || '').trim().toLowerCase();
     const password = (rawPassword || '').trim();
 
@@ -216,7 +216,7 @@ router.get('/members', async (req, res) => {
 // Add New Team Member in MongoDB
 router.post('/members', async (req, res) => {
   try {
-    const { name: rawName, email: rawEmail, password: rawPassword, role, assignedSectors } = req.body;
+    const { name: rawName, email: rawEmail, password: rawPassword, role, assignedSectors } = req.body || {};
     const email = (rawEmail || '').trim().toLowerCase();
     const password = (rawPassword || '').trim();
     const name = (rawName || '').trim();
@@ -279,7 +279,7 @@ router.post('/members', async (req, res) => {
     // Duplicate Key fallback for Mongo Index E11000
     if (error.code === 11000 || error.message.includes('E11000')) {
       try {
-        const { name: rawName, email: rawEmail, password: rawPassword, role, assignedSectors } = req.body;
+        const { name: rawName, email: rawEmail, password: rawPassword, role, assignedSectors } = req.body || {};
         const email = (rawEmail || '').trim().toLowerCase();
         const password = (rawPassword || '').trim();
         const name = (rawName || '').trim();
@@ -317,7 +317,7 @@ router.post('/members', async (req, res) => {
 router.put('/members/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name: rawName, email: rawEmail, password: rawPassword, role, assignedSectors } = req.body;
+    const { name: rawName, email: rawEmail, password: rawPassword, role, assignedSectors } = req.body || {};
     const email = (rawEmail || '').trim().toLowerCase();
     const password = (rawPassword || '').trim();
     const name = (rawName || '').trim();
@@ -335,7 +335,7 @@ router.put('/members/:id', async (req, res) => {
 
     if (!member) {
       member = await User.create({
-        name,
+        name: name || 'Team Member',
         email,
         password,
         role: role || 'Administrator',
@@ -380,7 +380,7 @@ router.delete('/members/:id', async (req, res) => {
     if (id && id.match(/^[0-9a-fA-F]{24}$/)) {
       await User.findByIdAndDelete(id);
     }
-    const { email } = req.query;
+    const { email } = req.query || {};
     if (email) {
       await User.findOneAndDelete({ email: email.toLowerCase() });
     }
