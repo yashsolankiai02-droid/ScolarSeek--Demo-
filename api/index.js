@@ -36,19 +36,27 @@ app.use((req, res, next) => {
   next();
 });
 
-// API Routes
+// API Routes (supports both /api/ route prefixes and stripped path rewrites)
 app.use('/api/search', searchRouter);
+app.use('/search', searchRouter);
+
 app.use('/api/scholarships', scholarshipsRouter);
+app.use('/scholarships', scholarshipsRouter);
+
 app.use('/api/auth', authRouter);
+app.use('/auth', authRouter);
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health'], (req, res) => {
   res.status(200).json({ status: 'OK', message: 'ScholarSeek API operational on Vercel' });
 });
 
 // Root API fallback
-app.get('/api', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'ScholarSeek Vercel Serverless API' });
+app.get(['/api', '/'], (req, res) => {
+  if (req.path.startsWith('/api') || req.path === '/') {
+    return res.status(200).json({ status: 'OK', message: 'ScholarSeek Vercel Serverless API' });
+  }
+  res.status(404).json({ success: false, error: 'API Endpoint Not Found' });
 });
 
 module.exports = app;

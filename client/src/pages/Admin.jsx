@@ -521,34 +521,70 @@ export default function Admin() {
     e.preventDefault();
     if (!editingMember) return;
 
-    if (!editingMember.name.trim() || !editingMember.email.trim() || !editingMember.password.trim()) {
+    const trimmedName = editingMember.name.trim();
+    const trimmedEmail = editingMember.email.trim();
+    const trimmedPassword = editingMember.password.trim();
+
+    if (!trimmedName || !trimmedEmail || !trimmedPassword) {
       alert('Name, Email, and Password cannot be blank.');
       return;
     }
 
+    // Immediately update local state & localStorage for snappy UI feel
+    const updatedMemberObj = {
+      id: editingMember.id,
+      name: trimmedName,
+      email: trimmedEmail,
+      password: trimmedPassword,
+      role: editingMember.role,
+      assignedSectors: editingMember.assignedSectors
+    };
+
+    setTeamMembers(prev => {
+      const updated = prev.map(m => (m.id === editingMember.id || m.email.toLowerCase() === trimmedEmail.toLowerCase()) ? updatedMemberObj : m);
+      try { localStorage.setItem('scholarseek_team_members', JSON.stringify(updated)); } catch (e) {}
+      return updated;
+    });
+
+    setEditingMember(null);
+
     try {
       const response = await axios.put(`/api/auth/members/${editingMember.id}`, {
-        name: editingMember.name.trim(),
-        email: editingMember.email.trim(),
-        password: editingMember.password.trim(),
+        name: trimmedName,
+        email: trimmedEmail,
+        password: trimmedPassword,
         role: editingMember.role,
         assignedSectors: editingMember.assignedSectors
       });
 
       if (response.data && response.data.success) {
-        setMemberMsg(`✅ Member "${editingMember.name}" updated permanently in MongoDB!`);
-        setEditingMember(null);
-        fetchTeamMembers();
+        setMemberMsg(`✅ Member "${trimmedName}" updated permanently in MongoDB!`);
+        if (response.data.member) {
+          setTeamMembers(prev => {
+            const updated = prev.map(m => (m.id === editingMember.id || m.email.toLowerCase() === trimmedEmail.toLowerCase()) ? response.data.member : m);
+            try { localStorage.setItem('scholarseek_team_members', JSON.stringify(updated)); } catch (e) {}
+            return updated;
+          });
+        }
+        await fetchTeamMembers();
         setTimeout(() => setMemberMsg(''), 4000);
       }
     } catch (err) {
       alert(err.response?.data?.message || 'Error updating member.');
+      fetchTeamMembers();
     }
   };
 
   const handleDeleteMember = async (id, name, email) => {
     const confirmDelete = window.confirm(`Remove team member "${name}" permanently from MongoDB database?`);
     if (!confirmDelete) return;
+
+    // Immediately update local state & localStorage
+    setTeamMembers(prev => {
+      const updated = prev.filter(m => m.id !== id && m.email.toLowerCase() !== (email || '').toLowerCase());
+      try { localStorage.setItem('scholarseek_team_members', JSON.stringify(updated)); } catch (e) {}
+      return updated;
+    });
 
     try {
       const response = await axios.delete(`/api/auth/members/${id}?email=${encodeURIComponent(email || '')}`);
@@ -559,6 +595,7 @@ export default function Admin() {
       }
     } catch (err) {
       alert(err.response?.data?.message || 'Error deleting member.');
+      fetchTeamMembers();
     }
   };
 
