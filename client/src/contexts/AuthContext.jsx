@@ -40,20 +40,10 @@ export const AuthProvider = ({ children }) => {
         saveUser(response.data.user);
         return { success: true, user: response.data.user };
       }
+      return { success: false, error: 'Unknown registration error.' };
     } catch (e) {
-      console.warn('Backend signup API fallback to local:', e.message);
+      return { success: false, error: e.response?.data?.error || e.message || 'Registration failed.' };
     }
-
-    // Local Storage Fallback
-    const loggedUser = { email, name, role: 'student' };
-    try {
-      const accounts = JSON.parse(localStorage.getItem('auth_accounts') || '[]');
-      accounts.push({ email, password, name, role: 'student', createdAt: new Date().toISOString() });
-      localStorage.setItem('auth_accounts', JSON.stringify(accounts));
-    } catch (err) {}
-
-    saveUser(loggedUser);
-    return { success: true, user: loggedUser };
   };
 
   const login = async (emailInput, passwordInput) => {
@@ -64,36 +54,16 @@ export const AuthProvider = ({ children }) => {
       return { success: false, error: 'Email and password are required.' };
     }
 
-    // Check Super Admin Credentials
-    const isSuperAdminEmail = email === 'yashsolanki@scholarseek.ac.in' || email.includes('scholarseek.ac.in') || email === 'admin';
-    const isValidAdminPass = password === 'saumya2' || password === 'DLV0909' || password === 'admin123' || password.length >= 4;
-
-    if (isSuperAdminEmail && isValidAdminPass) {
-      const adminUser = {
-        email: 'yashsolanki@scholarseek.ac.in',
-        name: 'Yash Solanki (Super Admin)',
-        role: 'super_admin'
-      };
-      saveUser(adminUser);
-      return { success: true, user: adminUser };
-    }
-
     try {
       const response = await axios.post('/api/auth/login', { email, password });
       if (response.data && response.data.success && response.data.user) {
         saveUser(response.data.user);
         return { success: true, user: response.data.user };
       }
+      return { success: false, error: 'Unknown login error.' };
     } catch (e) {
-      console.warn('Backend login API fallback to local:', e.message);
+      return { success: false, error: e.response?.data?.error || e.message || 'Login failed.' };
     }
-
-    // Fallback for created accounts
-    const formattedName = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    const autoUser = { email, name: formattedName || 'Student', role: 'student' };
-
-    saveUser(autoUser);
-    return { success: true, user: autoUser };
   };
 
   const logout = () => {
