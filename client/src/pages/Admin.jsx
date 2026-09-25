@@ -609,38 +609,46 @@ export default function Admin() {
   // ==========================================
   if (!activeSession) {
     return (
-      <div className="min-h-[85vh] flex flex-col items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 shadow-2xl space-y-6 animate-fade-in">
+      <div className="min-h-[90vh] flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-950 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 text-slate-100 transition-colors duration-300">
+        
+        {/* Decorative Ambient Blobs */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-brand-500/30 via-purple-600/30 to-pink-500/25 rounded-full blur-[130px] pointer-events-none animate-pulse" />
+        <div className="absolute bottom-10 right-10 w-80 h-80 bg-emerald-500/20 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-10 left-10 w-80 h-80 bg-cyan-500/20 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="relative z-10 w-full max-w-md bg-slate-900/90 backdrop-blur-2xl border border-slate-700/80 rounded-3xl p-8 shadow-2xl space-y-6 animate-fade-in text-white ring-1 ring-white/10">
           
-          <div className="w-16 h-16 bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+          <div className="w-16 h-16 bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 text-white rounded-2xl flex items-center justify-center mx-auto shadow-xl shadow-indigo-500/30 ring-2 ring-white/20">
             <KeyRound className="w-8 h-8" />
           </div>
 
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">ScholarSeek Admin Portal</h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <h2 className="text-2xl font-black text-white tracking-tight">ScholarSeek Admin Portal</h2>
+            <p className="text-xs font-semibold text-slate-300 mt-1">
               Select login mode to manage scholarship schemes &amp; team domains.
             </p>
           </div>
 
           {/* Login Mode Toggle */}
-          <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl">
+          <div className="flex bg-slate-950/80 p-1.5 rounded-2xl border border-slate-800">
             <button
+              type="button"
               onClick={() => { setLoginMethod('super'); setPassError(''); }}
-              className={`flex-1 py-2 text-xs font-bold rounded-xl transition-colors ${
+              className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all cursor-pointer ${
                 loginMethod === 'super'
-                  ? 'bg-white dark:bg-gray-900 text-brand-600 dark:text-brand-400 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-600/40'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               Super Admin Passcode
             </button>
             <button
+              type="button"
               onClick={() => { setLoginMethod('member'); setPassError(''); }}
-              className={`flex-1 py-2 text-xs font-bold rounded-xl transition-colors ${
+              className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all cursor-pointer ${
                 loginMethod === 'member'
-                  ? 'bg-white dark:bg-gray-900 text-brand-600 dark:text-brand-400 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-600/40'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               Team Member Login
@@ -648,8 +656,8 @@ export default function Admin() {
           </div>
 
           {passError && (
-            <div className="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-bold p-3.5 rounded-xl flex items-center justify-center space-x-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div className="bg-red-950/80 border border-red-600 text-red-200 text-xs font-bold p-3.5 rounded-xl flex items-center justify-center space-x-2 shadow-lg">
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
               <span>{passError}</span>
             </div>
           )}
@@ -658,11 +666,11 @@ export default function Admin() {
           {loginMethod === 'super' ? (
             <form onSubmit={handleSuperAdminAuth} className="space-y-4 text-left">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="admin-super-email" className="block text-xs font-bold uppercase tracking-wider text-slate-200 mb-1.5 cursor-pointer">
                   Super Admin Email ID *
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400" />
                   <input
                     id="admin-super-email"
                     name="email"
@@ -675,17 +683,17 @@ export default function Admin() {
                     value={superEmail}
                     onChange={(e) => setSuperEmail(e.target.value)}
                     placeholder="Enter Email"
-                    className="w-full h-12 pl-10 pr-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+                    className="w-full h-12 pl-10 pr-4 bg-slate-800/90 border border-slate-600 rounded-xl text-sm font-bold text-white placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500 outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="admin-super-password" className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1 cursor-pointer">
+                <label htmlFor="admin-super-password" className="block text-xs font-bold uppercase tracking-wider text-slate-200 mb-1.5 cursor-pointer">
                   Super Admin Password *
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400" />
                   <input
                     id="admin-super-password"
                     name="password"
@@ -698,16 +706,16 @@ export default function Admin() {
                     value={inputPass}
                     onChange={(e) => setInputPass(e.target.value)}
                     placeholder="Enter Password"
-                    className="w-full h-12 pl-10 pr-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+                    className="w-full h-12 pl-10 pr-4 bg-slate-800/90 border border-slate-600 rounded-xl text-sm font-bold text-white placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500 outline-none"
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full h-12 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl flex items-center justify-center space-x-2 transition-colors shadow-md cursor-pointer"
+                className="w-full h-12 bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center justify-center space-x-2 transition-all shadow-xl shadow-indigo-600/40 cursor-pointer border border-white/20 active:scale-95"
               >
-                <ShieldCheck className="w-4 h-4" />
+                <ShieldCheck className="w-4 h-4 text-amber-300" />
                 <span>Log In as Super Admin</span>
               </button>
             </form>
@@ -715,7 +723,7 @@ export default function Admin() {
             /* Team Member Form */
             <form onSubmit={handleMemberAuth} className="space-y-4 text-left">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="admin-member-email" className="block text-xs font-bold uppercase tracking-wider text-slate-200 mb-1.5 cursor-pointer">
                   Website Email ID *
                 </label>
                 <input
@@ -730,12 +738,12 @@ export default function Admin() {
                   value={memberEmail}
                   onChange={(e) => setMemberEmail(e.target.value)}
                   placeholder="Enter Email"
-                  className="w-full h-12 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+                  className="w-full h-12 px-4 bg-slate-800/90 border border-slate-600 rounded-xl text-sm font-bold text-white placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
               <div>
-                <label htmlFor="admin-member-password" className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1 cursor-pointer">
+                <label htmlFor="admin-member-password" className="block text-xs font-bold uppercase tracking-wider text-slate-200 mb-1.5 cursor-pointer">
                   Password *
                 </label>
                 <input
@@ -750,21 +758,21 @@ export default function Admin() {
                   value={memberPass}
                   onChange={(e) => setMemberPass(e.target.value)}
                   placeholder="Enter password"
-                  className="w-full h-12 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+                  className="w-full h-12 px-4 bg-slate-800/90 border border-slate-600 rounded-xl text-sm font-bold text-white placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full h-12 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl flex items-center justify-center space-x-2 transition-colors shadow-md cursor-pointer"
+                className="w-full h-12 bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center justify-center space-x-2 transition-all shadow-xl shadow-indigo-600/40 cursor-pointer border border-white/20 active:scale-95"
               >
-                <UserCheck className="w-4 h-4" />
+                <UserCheck className="w-4 h-4 text-emerald-300" />
                 <span>Log In as Team Member</span>
               </button>
             </form>
           )}
 
-          <p className="text-[11px] text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-gray-800 pt-4 text-center">
+          <p className="text-[11px] font-semibold text-slate-400 border-t border-slate-800 pt-4 text-center">
             Protected Admin Route — Official Team &amp; Super Admin Access
           </p>
 
