@@ -12,6 +12,16 @@ const SUPER_ADMIN = {
   addedAt: '2026-01-10'
 };
 
+const formatDate = (dateVal) => {
+  try {
+    if (!dateVal) return new Date().toISOString().split('T')[0];
+    if (typeof dateVal === 'string') return dateVal.split('T')[0];
+    if (dateVal instanceof Date) return dateVal.toISOString().split('T')[0];
+    if (typeof dateVal.toISOString === 'function') return dateVal.toISOString().split('T')[0];
+  } catch (e) {}
+  return new Date().toISOString().split('T')[0];
+};
+
 // Helper to seed Super Admin in MongoDB if not exists
 const ensureSuperAdminInDB = async () => {
   try {
@@ -189,7 +199,7 @@ router.get('/members', async (req, res) => {
       password: m.password,
       role: m.role || 'Administrator',
       assignedSectors: m.assignedSectors && m.assignedSectors.length > 0 ? m.assignedSectors : ['All Sectors'],
-      addedAt: m.createdAt ? m.createdAt.toISOString().split('T')[0] : '2026-01-10'
+      addedAt: formatDate(m.createdAt)
     }));
 
     // Ensure Super Admin is first
@@ -237,7 +247,7 @@ router.post('/members', async (req, res) => {
           password: existing.password,
           role: existing.role,
           assignedSectors: existing.assignedSectors,
-          addedAt: existing.createdAt ? existing.createdAt.toISOString().split('T')[0] : '2026-01-10'
+          addedAt: formatDate(existing.createdAt)
         }
       });
     }
@@ -260,7 +270,7 @@ router.post('/members', async (req, res) => {
         password: newMember.password,
         role: newMember.role,
         assignedSectors: newMember.assignedSectors,
-        addedAt: newMember.createdAt ? newMember.createdAt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+        addedAt: formatDate(newMember.createdAt)
       }
     });
   } catch (error) {
@@ -292,7 +302,7 @@ router.post('/members', async (req, res) => {
               password: existing.password,
               role: existing.role,
               assignedSectors: existing.assignedSectors,
-              addedAt: existing.createdAt ? existing.createdAt.toISOString().split('T')[0] : '2026-01-10'
+              addedAt: formatDate(existing.createdAt)
             }
           });
         }
@@ -350,7 +360,7 @@ router.put('/members/:id', async (req, res) => {
         password: member.password,
         role: member.role,
         assignedSectors: member.assignedSectors,
-        addedAt: member.createdAt ? member.createdAt.toISOString().split('T')[0] : '2026-01-10'
+        addedAt: formatDate(member.createdAt)
       }
     });
   } catch (error) {
@@ -369,12 +379,12 @@ router.delete('/members/:id', async (req, res) => {
 
     if (id && id.match(/^[0-9a-fA-F]{24}$/)) {
       await User.findByIdAndDelete(id);
-    } else {
-      const { email } = req.query;
-      if (email) {
-        await User.findOneAndDelete({ email: email.toLowerCase() });
-      }
     }
+    const { email } = req.query;
+    if (email) {
+      await User.findOneAndDelete({ email: email.toLowerCase() });
+    }
+
     res.status(200).json({ success: true, message: 'Member deleted permanently from MongoDB' });
   } catch (error) {
     console.error('Delete Member error:', error);
@@ -383,4 +393,5 @@ router.delete('/members/:id', async (req, res) => {
 });
 
 module.exports = router;
+
 
