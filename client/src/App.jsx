@@ -90,7 +90,8 @@ function AppRoutes() {
   const getLoginElement = () => {
     if (!isAuthenticated) return <Login />;
     const role = (user?.role || '').toLowerCase();
-    const isAdmin = role.includes('admin') || role.includes('administrator') || (user?.email || '').includes('scholarseek.ac.in');
+    const userEmail = (user?.email || '').toLowerCase();
+    const isAdmin = role.includes('admin') || role.includes('administrator') || role.includes('super') || userEmail === 'yashsolanki@scholarseek.ac.in';
     return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
   };
 

@@ -1088,22 +1088,29 @@ export default function Admin() {
 
           {/* Team Member List with Full Edit Button */}
           <div className="space-y-3">
-            {teamMembers.map(member => {
+            {teamMembers.map((member, idx) => {
+              if (!member) return null;
+              const memberName = member.name || member.email || 'Team Member';
+              const memberEmail = member.email || 'N/A';
+              const memberRole = member.role || 'Administrator';
+              const memberId = member.id || member._id || `mem_${idx}`;
+              const memberInitials = memberName.substring(0, 2).toUpperCase();
+
               const memberSectors = Array.isArray(member.assignedSectors)
                 ? member.assignedSectors
                 : (member.assignedSector ? [member.assignedSector] : ['All Sectors']);
 
               return (
-                <div key={member.id} className="p-4 bg-gray-50 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div key={memberId} className="p-4 bg-gray-50 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 font-bold text-xs flex items-center justify-center shrink-0">
-                      {member.name.substring(0, 2).toUpperCase()}
+                      {memberInitials}
                     </div>
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-xs font-bold text-gray-900 dark:text-white">{member.name}</h4>
+                        <h4 className="text-xs font-bold text-gray-900 dark:text-white">{memberName}</h4>
                         <span className="text-[10px] font-mono bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">
-                          {member.email}
+                          {memberEmail}
                         </span>
                       </div>
                       
@@ -1119,14 +1126,14 @@ export default function Admin() {
                         {member.password && (
                           <span className="text-[10px] font-mono bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800 flex items-center space-x-1.5 ml-1">
                             <Key className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                            <span>Pass: <strong>{showPassMap[member.id] ? member.password : '••••••••'}</strong></span>
+                            <span>Pass: <strong>{showPassMap[memberId] ? member.password : '••••••••'}</strong></span>
                             <button
                               type="button"
-                              onClick={() => toggleShowPass(member.id)}
+                              onClick={() => toggleShowPass(memberId)}
                               className="p-0.5 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
-                              title={showPassMap[member.id] ? "Hide Password" : "Show Password"}
+                              title={showPassMap[memberId] ? "Hide Password" : "Show Password"}
                             >
-                              {showPassMap[member.id] ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                              {showPassMap[memberId] ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                             </button>
                           </span>
                         )}
@@ -1136,7 +1143,7 @@ export default function Admin() {
 
                   <div className="flex items-center space-x-3">
                     <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                      {member.role}
+                      {memberRole}
                     </span>
 
                     {/* Edit Member Button */}
@@ -1150,7 +1157,7 @@ export default function Admin() {
                     </button>
 
                     <button
-                      onClick={() => handleDeleteMember(member.id, member.name, member.email)}
+                      onClick={() => handleDeleteMember(memberId, memberName, memberEmail)}
                       className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                       title="Delete Member"
                     >

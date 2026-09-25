@@ -59,7 +59,8 @@ export default function Login() {
       const result = await login(email.trim(), password);
       if (result.success) {
         const userRole = (result.user?.role || '').toLowerCase();
-        const isAdminUser = userRole.includes('admin') || userRole.includes('administrator') || (result.user?.email || '').includes('scholarseek.ac.in');
+        const userEmail = (result.user?.email || '').toLowerCase();
+        const isAdminUser = userRole.includes('admin') || userRole.includes('administrator') || userRole.includes('super') || userEmail === 'yashsolanki@scholarseek.ac.in';
         
         if (isAdminUser) {
           navigate('/admin');
