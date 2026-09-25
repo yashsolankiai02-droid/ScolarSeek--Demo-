@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+// High-contrast accessible login form with full MongoDB cross-device authentication
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useLanguage } from '../contexts/LanguageContext';
-import { GraduationCap, Mail, Lock, User, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles, Sun, Moon, Globe } from 'lucide-react';
+import { GraduationCap, Mail, Lock, User, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function Login() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -14,7 +14,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const { login, signup } = useAuth();
-  const { lang, setLang, darkMode, toggleDarkMode } = useLanguage();
   const navigate = useNavigate();
 
   const handleSuperAdminQuickLogin = async () => {
@@ -23,7 +22,7 @@ export default function Login() {
     setPassword('saumya2');
     const result = await login('yashsolanki@scholarseek.ac.in', 'saumya2');
     if (result.success) {
-      navigate('/admin');
+      window.location.href = '/admin';
     }
   };
 
@@ -33,7 +32,7 @@ export default function Login() {
     setPassword('student123');
     const result = await login('student@scholarseek.ac.in', 'student123');
     if (result.success) {
-      navigate('/dashboard');
+      window.location.href = '/dashboard';
     }
   };
 
@@ -49,9 +48,9 @@ export default function Login() {
       
       const result = await signup(email.trim(), password, name.trim());
       if (result.success) {
-        navigate('/profile');
+        window.location.href = '/profile';
       } else {
-        setError(result.error || 'Registration failed.');
+        setError(result.error);
       }
     } else {
       if (!email.trim() || !password) { setError('Please enter email and password.'); setLoading(false); return; }
@@ -59,13 +58,12 @@ export default function Login() {
       const result = await login(email.trim(), password);
       if (result.success) {
         const userRole = (result.user?.role || '').toLowerCase();
-        const userEmail = (result.user?.email || '').toLowerCase();
-        const isAdminUser = userRole.includes('admin') || userRole.includes('administrator') || userRole.includes('super') || userEmail === 'yashsolanki@scholarseek.ac.in';
+        const isAdminUser = userRole.includes('admin') || userRole.includes('administrator') || result.user?.email?.includes('scholarseek.ac.in');
         
         if (isAdminUser) {
-          navigate('/admin');
+          window.location.href = '/admin';
         } else {
-          navigate('/dashboard');
+          window.location.href = '/dashboard';
         }
       } else {
         setError(result.error || 'Login failed.');
@@ -75,113 +73,78 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50/60 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 text-slate-900 dark:text-slate-100 flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden selection:bg-brand-500 selection:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center px-4 py-12 transition-colors selection:bg-brand-500 selection:text-white">
       
-      {/* Top Controls: Dark Mode & Language Selector */}
-      <div className="absolute top-5 right-5 z-20 flex items-center space-x-3">
-        {/* Language Selector */}
-        <div className="flex items-center space-x-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 shadow-md">
-          <Globe className="w-3.5 h-3.5 text-brand-600 dark:text-indigo-400" />
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value)}
-            className="bg-transparent text-slate-900 dark:text-slate-100 outline-none cursor-pointer font-bold"
-          >
-            <option value="English" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">English</option>
-            <option value="Hindi" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">हिन्दी</option>
-            <option value="Gujarati" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">ગુજરાતી</option>
-          </select>
-        </div>
-
-        {/* Theme Toggle Button */}
-        <button
-          onClick={toggleDarkMode}
-          type="button"
-          title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-white/90 dark:bg-slate-800/90 hover:bg-slate-100 dark:hover:bg-slate-700/80 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 text-xs font-black text-slate-800 dark:text-white rounded-xl transition-all shadow-md cursor-pointer active:scale-95"
-        >
-          {darkMode ? <Sun className="h-4 w-4 text-amber-400 animate-spin-slow" /> : <Moon className="h-4 w-4 text-brand-600" />}
-          <span>{darkMode ? 'Dark' : 'Light'}</span>
-        </button>
-      </div>
-
-      {/* Decorative Multi-Colored Ambient Gradient Blobs */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-brand-400/20 via-indigo-500/20 to-purple-500/20 dark:from-brand-500/30 dark:via-purple-600/30 dark:to-pink-500/25 rounded-full blur-[140px] pointer-events-none animate-pulse" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-emerald-400/20 dark:bg-emerald-500/25 rounded-full blur-[110px] pointer-events-none" />
-      <div className="absolute top-10 left-10 w-96 h-96 bg-cyan-400/20 dark:bg-cyan-500/25 rounded-full blur-[110px] pointer-events-none" />
-
       {/* Brand Header */}
-      <div className="relative z-10 flex items-center space-x-3.5 mb-8">
-        <div className="p-3.5 bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 rounded-2xl text-white shadow-xl shadow-brand-500/25 ring-2 ring-white/30">
+      <div className="flex items-center space-x-3 mb-8">
+        <div className="p-3 bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 rounded-2xl text-white shadow-lg">
           <GraduationCap className="w-8 h-8" />
         </div>
         <div>
-          <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center">
-            Scholar<span className="bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 dark:from-brand-400 dark:via-indigo-300 dark:to-purple-400 bg-clip-text text-transparent ml-0.5">Seek</span>
+          <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Scholar<span className="text-brand-600 dark:text-brand-400">Seek</span>
           </span>
-          <p className="text-xs font-bold text-slate-600 dark:text-slate-300 mt-0.5 tracking-wide">Unified Student Scholarship Platform</p>
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">Unified Student Scholarship Portal</p>
         </div>
       </div>
 
-      {/* Main Glassmorphism Card */}
-      <div className="relative z-10 w-full max-w-md bg-white/95 dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-700/80 rounded-3xl shadow-2xl p-8 transition-all ring-1 ring-black/5 dark:ring-white/10">
+      {/* Main Card */}
+      <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl shadow-xl p-8 transition-colors">
         
         {/* Toggle Login vs Create Account */}
-        <div className="flex bg-slate-100 dark:bg-slate-950/80 rounded-2xl p-1.5 mb-6 border border-slate-200 dark:border-slate-800">
+        <div className="flex bg-slate-100 dark:bg-slate-800/80 rounded-2xl p-1.5 mb-6">
           <button
             onClick={() => { setIsSignUp(false); setError(''); }}
-            type="button"
-            className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all cursor-pointer ${
+            className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all ${
               !isSignUp 
-                ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-600/40' 
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' 
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             Sign In
           </button>
           <button
             onClick={() => { setIsSignUp(true); setError(''); }}
-            type="button"
-            className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all cursor-pointer ${
+            className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all ${
               isSignUp 
-                ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-600/40' 
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' 
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             Create Account
           </button>
         </div>
 
-        {/* 1-Click Quick Demo Shortcuts Banner */}
-        <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50/80 via-blue-50/60 to-purple-50/80 dark:from-slate-950 dark:via-indigo-950/70 dark:to-slate-950 border border-indigo-200 dark:border-indigo-500/40 rounded-2xl space-y-3 shadow-sm">
-          <span className="text-[11px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 flex items-center">
-            <Sparkles className="w-4 h-4 mr-1.5 text-amber-500 dark:text-amber-400 animate-pulse" />
-            Instant Demo Logins
+        {/* 1-Click Quick Login Banner */}
+        <div className="mb-6 p-3 bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800 rounded-2xl space-y-2">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-brand-700 dark:text-brand-300 block flex items-center">
+            <Sparkles className="w-3 h-3 mr-1 text-amber-500" />
+            Quick Demo Login Shortcuts
           </span>
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-2">
             <button
               onClick={handleSuperAdminQuickLogin}
               type="button"
-              className="py-2.5 px-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-500 text-white text-[11px] font-black rounded-xl shadow-lg shadow-indigo-600/30 flex items-center justify-center space-x-1.5 transition-all cursor-pointer border border-white/20 active:scale-95"
+              className="py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold rounded-xl shadow-xs flex items-center justify-center space-x-1 transition-colors"
             >
-              <ShieldCheck className="w-4 h-4 text-amber-300 shrink-0" />
+              <ShieldCheck className="w-3.5 h-3.5" />
               <span>Super Admin</span>
             </button>
             <button
               onClick={handleStudentQuickLogin}
               type="button"
-              className="py-2.5 px-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white text-[11px] font-black rounded-xl shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-1.5 transition-all cursor-pointer border border-white/20 active:scale-95"
+              className="py-2 px-3 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-center space-x-1 transition-colors"
             >
-              <User className="w-4 h-4 text-emerald-200 shrink-0" />
+              <User className="w-3.5 h-3.5 text-brand-600" />
               <span>Demo Student</span>
             </button>
           </div>
         </div>
 
-        <h2 className="text-xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
           {isSignUp ? 'Create your account' : 'Welcome back'}
         </h2>
-        <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-6">
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
           {isSignUp
             ? 'Sign up to match scholarships tailored to your eligibility profile.'
             : 'Enter credentials below or tap a quick login shortcut.'
@@ -190,8 +153,8 @@ export default function Login() {
 
         {/* Error Notification */}
         {error && (
-          <div className="bg-red-50 dark:bg-red-950/80 border border-red-300 dark:border-red-600 text-red-800 dark:text-red-200 text-xs font-bold px-4 py-3 rounded-xl mb-6 flex items-center space-x-2 shadow-sm">
-            <span>⚠️ {error}</span>
+          <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-semibold px-4 py-3 rounded-xl mb-6">
+            {error}
           </div>
         )}
 
@@ -201,9 +164,9 @@ export default function Login() {
           {/* Name (Sign Up only) */}
           {isSignUp && (
             <div>
-              <label htmlFor="login-name-input" className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5 cursor-pointer">Full Name</label>
+              <label htmlFor="login-name-input" className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1 cursor-pointer">Full Name</label>
               <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-600 dark:text-indigo-400 pointer-events-none z-10" />
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400 pointer-events-none z-10" />
                 <input
                   id="login-name-input"
                   name="name"
@@ -212,7 +175,7 @@ export default function Login() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter Name"
-                  className="w-full h-11 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all cursor-text relative z-0"
+                  className="w-full h-11 pl-10 pr-4 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all cursor-text relative z-0"
                 />
               </div>
             </div>
@@ -220,47 +183,41 @@ export default function Login() {
 
           {/* Email */}
           <div>
-            <label htmlFor="login-email-input" className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5 cursor-pointer">Email Address</label>
+            <label htmlFor="login-email-input" className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1 cursor-pointer">Email Address</label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-600 dark:text-indigo-400 pointer-events-none z-10" />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400 pointer-events-none z-10" />
               <input
                 id="login-email-input"
                 name="email"
                 type="email"
                 autoComplete="email"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck="false"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter Email"
-                className="w-full h-11 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all cursor-text relative z-0"
+                className="w-full h-11 pl-10 pr-4 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all cursor-text relative z-0"
               />
             </div>
           </div>
 
           {/* Password */}
           <div>
-            <label htmlFor="login-password-input" className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5 cursor-pointer">Password</label>
+            <label htmlFor="login-password-input" className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1 cursor-pointer">Password</label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-600 dark:text-indigo-400 pointer-events-none z-10" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-slate-400 pointer-events-none z-10" />
               <input
                 id="login-password-input"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete={isSignUp ? 'new-password' : 'current-password'}
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck="false"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter Password"
-                className="w-full h-11 pl-10 pr-11 bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all cursor-text relative z-0"
+                className="w-full h-11 pl-10 pr-11 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all cursor-text relative z-0"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 dark:hover:text-white z-10 p-1 cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 z-10 p-1"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -271,7 +228,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-12 bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 active:from-brand-700 text-white font-black rounded-xl flex items-center justify-center space-x-2 transition-all shadow-xl shadow-brand-500/25 disabled:opacity-60 text-xs tracking-wider uppercase cursor-pointer mt-2 border border-white/20 active:scale-95"
+            className="w-full h-11 bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-bold rounded-xl flex items-center justify-center space-x-2 transition-all shadow-md disabled:opacity-60 text-xs"
           >
             <span>{isSignUp ? 'Create Account' : 'Sign In'}</span>
             <ArrowRight className="w-4 h-4" />
@@ -279,11 +236,11 @@ export default function Login() {
         </form>
 
         {/* Footer Toggle */}
-        <p className="text-center text-xs font-semibold text-slate-600 dark:text-slate-300 mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-6">
           {isSignUp ? 'Already have an account?' : "Don't have an account?"}
           <button
             onClick={() => { setIsSignUp(!isSignUp); setError(''); }}
-            className="ml-1 text-brand-600 dark:text-indigo-400 font-extrabold hover:underline cursor-pointer"
+            className="ml-1 text-brand-600 dark:text-brand-400 font-bold hover:underline"
           >
             {isSignUp ? 'Sign In' : 'Create One'}
           </button>

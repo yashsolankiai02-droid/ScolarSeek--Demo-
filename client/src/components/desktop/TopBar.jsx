@@ -10,17 +10,17 @@ const TopBar = ({ title }) => {
   const { lang, setLang, darkMode, toggleDarkMode } = useLanguage();
 
   const getInitials = (name) => {
-    if (!name || typeof name !== 'string') return 'U';
+    if (!name) return 'U';
     return name
       .split(' ')
-      .map((n) => n[0] || '')
+      .map((n) => n[0])
       .join('')
       .toUpperCase()
-      .substring(0, 2) || 'U';
+      .substring(0, 2);
   };
 
   return (
-    <header className="sticky top-0 z-20 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 h-16 flex items-center justify-between px-8 transition-colors">
+    <header className="sticky top-0 z-20 bg-white/95 dark:bg-black/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 h-16 flex items-center justify-between px-8 transition-colors">
       <h1 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h1>
 
       <div className="flex items-center gap-3">

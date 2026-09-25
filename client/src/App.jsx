@@ -85,21 +85,13 @@ function ProtectedRoutes() {
 }
 
 function AppRoutes() {
-  const { user, isAuthenticated } = useAuth();
-
-  const getLoginElement = () => {
-    if (!isAuthenticated) return <Login />;
-    const role = (user?.role || '').toLowerCase();
-    const userEmail = (user?.email || '').toLowerCase();
-    const isAdmin = role.includes('admin') || role.includes('administrator') || role.includes('super') || userEmail === 'yashsolanki@scholarseek.ac.in';
-    return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
-  };
+  const { isAuthenticated } = useAuth();
 
   return (
     <Routes>
       {/* Direct accessible routes */}
       <Route path="/admin" element={<Admin />} />
-      <Route path="/login" element={getLoginElement()} />
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
       <Route path="/*" element={<ProtectedRoutes />} />
     </Routes>
   );

@@ -3,11 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { 
   PlusCircle, CheckCircle2, AlertCircle, ArrowLeft, Lock, Edit2, Trash2, X, 
-  UserPlus, Users, ShieldCheck, KeyRound, UserCheck, LogOut, Globe2, Key, ShieldAlert, Check, Mail, Eye, EyeOff,
-  Sun, Moon, Globe, GraduationCap, Sparkles
+  UserPlus, Users, ShieldCheck, KeyRound, UserCheck, LogOut, Globe2, Key, ShieldAlert, Check, Mail
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useLanguage } from '../contexts/LanguageContext';
 
 const SUPER_ADMIN_PASSWORD = 'DLV0909';
 
@@ -68,8 +65,6 @@ const initialTeamMembers = [
 
 export default function Admin() {
   const navigate = useNavigate();
-  const { user, logout: authLogout } = useAuth();
-  const { lang, setLang, darkMode, toggleDarkMode } = useLanguage();
 
   // Authentication State
   const [loginMethod, setLoginMethod] = useState('super'); // 'super' or 'member'
@@ -80,92 +75,23 @@ export default function Admin() {
   const [passError, setPassError] = useState('');
   
   const [activeSession, setActiveSession] = useState(() => {
-    // 1. Try session storage first
-    try {
-      const saved = sessionStorage.getItem('admin_active_session');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-
-    // 2. Fallback to auth_user from AuthContext / localStorage if team member or super admin
-    try {
-      const authUserStr = localStorage.getItem('auth_user');
-      if (authUserStr) {
-        const u = JSON.parse(authUserStr);
-        const email = (u?.email || '').toLowerCase();
-        const role = (u?.role || '').toLowerCase();
-        const isTeamOrAdmin = role.includes('admin') || role.includes('administrator') || email.includes('scholarseek.ac.in');
-        
-        if (isTeamOrAdmin) {
-          const memberSectors = Array.isArray(u.assignedSectors) && u.assignedSectors.length > 0
-            ? u.assignedSectors
-            : ['All Sectors'];
-
-          const sessionObj = {
-            isSuperAdmin: role === 'super_admin' || role === 'super admin' || email === 'yashsolanki@scholarseek.ac.in' || memberSectors.includes('All Sectors'),
-            name: u.name || 'Team Admin',
-            email: u.email,
-            role: u.role || 'Administrator',
-            assignedSectors: memberSectors
-          };
-          try { sessionStorage.setItem('admin_active_session', JSON.stringify(sessionObj)); } catch (e) {}
-          return sessionObj;
-        }
-      }
-    } catch (e) {}
-
-    return null;
+    const saved = sessionStorage.getItem('admin_active_session');
+    return saved ? JSON.parse(saved) : null;
   });
-
-  // Sync activeSession whenever user state changes in AuthContext
-  useEffect(() => {
-    if (user && !activeSession) {
-      const email = (user.email || '').toLowerCase();
-      const role = (user.role || '').toLowerCase();
-      const isTeamOrAdmin = role.includes('admin') || role.includes('administrator') || email.includes('scholarseek.ac.in');
-      
-      if (isTeamOrAdmin) {
-        const memberSectors = Array.isArray(user.assignedSectors) && user.assignedSectors.length > 0
-          ? user.assignedSectors
-          : ['All Sectors'];
-
-        const sessionObj = {
-          isSuperAdmin: role === 'super_admin' || role === 'super admin' || email === 'yashsolanki@scholarseek.ac.in' || memberSectors.includes('All Sectors'),
-          name: user.name || 'Team Admin',
-          email: user.email,
-          role: user.role || 'Administrator',
-          assignedSectors: memberSectors
-        };
-        setActiveSession(sessionObj);
-        try { sessionStorage.setItem('admin_active_session', JSON.stringify(sessionObj)); } catch (e) {}
-      }
-    }
-  }, [user, activeSession]);
 
   // Scholarship State
   const [formData, setFormData] = useState(emptyForm);
   const [scholarships, setScholarships] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
-  // Team Member Management State with localStorage & MongoDB persistence
-  const [teamMembers, setTeamMembers] = useState(() => {
-    try {
-      const saved = localStorage.getItem('scholarseek_team_members');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {}
-    return initialTeamMembers;
-  });
+  // Team Member Management State
+  const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
 
   const fetchTeamMembers = async () => {
     try {
       const res = await axios.get('/api/auth/members');
-      if (res.data && res.data.success && Array.isArray(res.data.members) && res.data.members.length > 0) {
+      if (res.data && res.data.success && Array.isArray(res.data.members)) {
         setTeamMembers(res.data.members);
-        try {
-          localStorage.setItem('scholarseek_team_members', JSON.stringify(res.data.members));
-        } catch (e) {}
       }
     } catch (e) {
       console.warn('Error fetching team members from MongoDB:', e.message);
@@ -186,11 +112,6 @@ export default function Admin() {
 
   // Edit Member Modal State
   const [editingMember, setEditingMember] = useState(null);
-  const [showPassMap, setShowPassMap] = useState({});
-
-  const toggleShowPass = (id) => {
-    setShowPassMap(prev => ({ ...prev, [id]: !prev[id] }));
-  };
   
   const [memberMsg, setMemberMsg] = useState('');
   const [loading, setLoading] = useState(false);
@@ -249,82 +170,31 @@ export default function Admin() {
     }
   };
 
-  const handleMemberAuth = async (e) => {
+  const handleMemberAuth = (e) => {
     e.preventDefault();
     setPassError('');
 
     const inputEmail = memberEmail.trim().toLowerCase();
-    const inputPass = memberPass.trim();
-
-    if (!inputEmail || !inputPass) {
-      setPassError('Please enter both Email ID and Password.');
-      return;
-    }
-
-    // 1. Query MongoDB Backend Login API first for cross-device authentication
-    try {
-      const response = await axios.post('/api/auth/login', {
-        email: inputEmail,
-        password: inputPass
-      });
-
-      if (response.data && response.data.success && response.data.user) {
-        const u = response.data.user;
-
-        if (u.role === 'student' && u.email !== 'yashsolanki@scholarseek.ac.in') {
-          setPassError('Access Denied: Student accounts cannot access the Team Admin Portal.');
-          return;
-        }
-
-        const memberSectors = Array.isArray(u.assignedSectors) && u.assignedSectors.length > 0 
-          ? u.assignedSectors 
-          : ['All Sectors'];
-
-        const session = {
-          isSuperAdmin: u.role === 'Super Admin' || u.role === 'super_admin' || memberSectors.includes('All Sectors'),
-          name: u.name,
-          email: u.email,
-          role: u.role || 'Administrator',
-          assignedSectors: memberSectors
-        };
-
-        setActiveSession(session);
-        fetchTeamMembers(); // Refresh team members from MongoDB
-        return;
-      }
-    } catch (err) {
-      console.warn('Backend team member login API error:', err.message);
-      if (err.response && err.response.data && err.response.data.error) {
-        setPassError(err.response.data.error);
-        return;
-      }
-    }
-
-    // 2. Secondary check against local teamMembers list
     const found = teamMembers.find(
-      (m) => m.email.toLowerCase() === inputEmail && m.password === inputPass
+      (m) => m.email.toLowerCase() === inputEmail && m.password === memberPass
     );
 
     if (found) {
-      const memberSectors = Array.isArray(found.assignedSectors) && found.assignedSectors.length > 0
+      const memberSectors = Array.isArray(found.assignedSectors)
         ? found.assignedSectors
         : (found.assignedSector ? [found.assignedSector] : ['All Sectors']);
 
       const session = {
-        isSuperAdmin: found.role === 'Super Admin' || found.role === 'super_admin' || memberSectors.includes('All Sectors'),
+        isSuperAdmin: found.role === 'Super Admin' || memberSectors.includes('All Sectors'),
         name: found.name,
         email: found.email,
-        role: found.role || 'Administrator',
+        role: found.role,
         assignedSectors: memberSectors
       };
       setActiveSession(session);
-      return;
-    }
-
-    // 3. Super Admin master password fallback
-    if (
+    } else if (
       inputEmail === 'yashsolanki@scholarseek.ac.in' &&
-      (inputPass === 'saumya2' || inputPass === SUPER_ADMIN_PASSWORD || inputPass === 'DLV0909')
+      (memberPass === 'saumya2' || memberPass === SUPER_ADMIN_PASSWORD)
     ) {
       const session = {
         isSuperAdmin: true,
@@ -334,19 +204,16 @@ export default function Admin() {
         assignedSectors: ['All Sectors']
       };
       setActiveSession(session);
-      return;
+    } else {
+      setPassError('Invalid Email or Password! Access Denied.');
     }
-
-    setPassError('Invalid Email or Password! Access Denied.');
   };
 
   const handleAdminLogout = () => {
     setActiveSession(null);
-    try { sessionStorage.removeItem('admin_active_session'); } catch (e) {}
     setInputPass('');
     setMemberEmail('');
     setMemberPass('');
-    if (authLogout) authLogout();
   };
 
   const fetchScholarships = async () => {
@@ -533,40 +400,14 @@ export default function Admin() {
       if (response.data && response.data.success) {
         setMemberMsg(`✅ Team member "${trimmedName}" saved permanently in MongoDB database!`);
         setNewMember({ name: '', email: '', password: '', role: 'Administrator', assignedSectors: ['Educational'] });
-        
-        if (response.data.member) {
-          setTeamMembers(prev => {
-            const updated = [response.data.member, ...prev.filter(m => m.email !== trimmedEmail)];
-            try { localStorage.setItem('scholarseek_team_members', JSON.stringify(updated)); } catch (e) {}
-            return updated;
-          });
-        }
         await fetchTeamMembers();
         setTimeout(() => setMemberMsg(''), 4000);
       } else {
         setMemberMsg(`⚠️ ${response.data?.message || 'Error saving team member.'}`);
       }
     } catch (err) {
-      console.warn('Backend team member add fallback:', err.message);
-      
-      const createdMember = {
-        id: 'mem_' + Date.now(),
-        name: trimmedName,
-        email: trimmedEmail,
-        password: trimmedPassword,
-        role: newMember.role || 'Administrator',
-        assignedSectors: newMember.assignedSectors.length > 0 ? newMember.assignedSectors : ['All Sectors'],
-        addedAt: new Date().toISOString().split('T')[0]
-      };
-
-      setTeamMembers(prev => {
-        const updated = [createdMember, ...prev.filter(m => m.email !== trimmedEmail)];
-        try { localStorage.setItem('scholarseek_team_members', JSON.stringify(updated)); } catch (e) {}
-        return updated;
-      });
-      setMemberMsg(`✅ Team member "${trimmedName}" added successfully!`);
-      setNewMember({ name: '', email: '', password: '', role: 'Administrator', assignedSectors: ['Educational'] });
-      setTimeout(() => setMemberMsg(''), 4000);
+      console.error('Backend team member add error:', err);
+      setMemberMsg(`⚠️ ${err.response?.data?.message || err.message || 'Error saving team member.'}`);
     }
   };
 
@@ -585,73 +426,37 @@ export default function Admin() {
     e.preventDefault();
     if (!editingMember) return;
 
-    const trimmedName = editingMember.name.trim();
-    const trimmedEmail = editingMember.email.trim();
-    const trimmedPassword = editingMember.password.trim();
-
-    if (!trimmedName || !trimmedEmail || !trimmedPassword) {
+    if (!editingMember.name.trim() || !editingMember.email.trim() || !editingMember.password.trim()) {
       alert('Name, Email, and Password cannot be blank.');
       return;
     }
 
-    // Immediately update local state & localStorage for snappy UI feel
-    const updatedMemberObj = {
-      id: editingMember.id,
-      name: trimmedName,
-      email: trimmedEmail,
-      password: trimmedPassword,
-      role: editingMember.role,
-      assignedSectors: editingMember.assignedSectors
-    };
-
-    setTeamMembers(prev => {
-      const updated = prev.map(m => (m.id === editingMember.id || m.email.toLowerCase() === trimmedEmail.toLowerCase()) ? updatedMemberObj : m);
-      try { localStorage.setItem('scholarseek_team_members', JSON.stringify(updated)); } catch (e) {}
-      return updated;
-    });
-
-    setEditingMember(null);
-
     try {
       const response = await axios.put(`/api/auth/members/${editingMember.id}`, {
-        name: trimmedName,
-        email: trimmedEmail,
-        password: trimmedPassword,
+        name: editingMember.name.trim(),
+        email: editingMember.email.trim(),
+        password: editingMember.password.trim(),
         role: editingMember.role,
         assignedSectors: editingMember.assignedSectors
       });
 
       if (response.data && response.data.success) {
-        setMemberMsg(`✅ Member "${trimmedName}" updated permanently in MongoDB!`);
-        if (response.data.member) {
-          setTeamMembers(prev => {
-            const updated = prev.map(m => (m.id === editingMember.id || m.email.toLowerCase() === trimmedEmail.toLowerCase()) ? response.data.member : m);
-            try { localStorage.setItem('scholarseek_team_members', JSON.stringify(updated)); } catch (e) {}
-            return updated;
-          });
-        }
-        await fetchTeamMembers();
+        setMemberMsg(`✅ Member "${editingMember.name}" updated permanently in MongoDB!`);
+        setEditingMember(null);
+        fetchTeamMembers();
         setTimeout(() => setMemberMsg(''), 4000);
       }
     } catch (err) {
       alert(err.response?.data?.message || 'Error updating member.');
-      fetchTeamMembers();
     }
   };
 
-  const handleDeleteMember = async (id, name, email) => {
+  const handleDeleteMember = async (id, name) => {
     const confirmDelete = window.confirm(`Remove team member "${name}" permanently from MongoDB database?`);
     if (!confirmDelete) return;
 
-    // Immediately update local state & localStorage
-    setTeamMembers(prev => {
-      const updated = prev.filter(m => m.id !== id && m.email.toLowerCase() !== (email || '').toLowerCase());
-      try { localStorage.setItem('scholarseek_team_members', JSON.stringify(updated)); } catch (e) {}
-      return updated;
-    });
-
     try {
-      const response = await axios.delete(`/api/auth/members/${id}?email=${encodeURIComponent(email || '')}`);
+      const response = await axios.delete(`/api/auth/members/${id}`);
       if (response.data && response.data.success) {
         setMemberMsg(`🗑️ Member "${name}" deleted permanently from MongoDB.`);
         fetchTeamMembers();
@@ -659,7 +464,6 @@ export default function Admin() {
       }
     } catch (err) {
       alert(err.response?.data?.message || 'Error deleting member.');
-      fetchTeamMembers();
     }
   };
 
@@ -673,72 +477,38 @@ export default function Admin() {
   // ==========================================
   if (!activeSession) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50/60 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
-        
-        {/* Top Controls: Dark Mode & Language Selector */}
-        <div className="absolute top-5 right-5 z-20 flex items-center space-x-3">
-          <div className="flex items-center space-x-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 shadow-md">
-            <Globe className="w-3.5 h-3.5 text-brand-600 dark:text-indigo-400" />
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value)}
-              className="bg-transparent text-slate-900 dark:text-slate-100 outline-none cursor-pointer font-bold"
-            >
-              <option value="English" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">English</option>
-              <option value="Hindi" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">हिन्दी</option>
-              <option value="Gujarati" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">ગુજરાતી</option>
-            </select>
-          </div>
-
-          <button
-            onClick={toggleDarkMode}
-            type="button"
-            title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-white/90 dark:bg-slate-800/90 hover:bg-slate-100 dark:hover:bg-slate-700/80 backdrop-blur-md border border-slate-200 dark:border-slate-700/80 text-xs font-black text-slate-800 dark:text-white rounded-xl transition-all shadow-md cursor-pointer active:scale-95"
-          >
-            {darkMode ? <Sun className="h-4 w-4 text-amber-400 animate-spin-slow" /> : <Moon className="h-4 w-4 text-brand-600" />}
-            <span>{darkMode ? 'Dark' : 'Light'}</span>
-          </button>
-        </div>
-
-        {/* Decorative Ambient Blobs */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-brand-400/20 via-purple-500/20 to-pink-500/20 dark:from-brand-500/30 dark:via-purple-600/30 dark:to-pink-500/25 rounded-full blur-[130px] pointer-events-none animate-pulse" />
-        <div className="absolute bottom-10 right-10 w-80 h-80 bg-emerald-400/20 dark:bg-emerald-500/20 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute top-10 left-10 w-80 h-80 bg-cyan-400/20 dark:bg-cyan-500/20 rounded-full blur-[100px] pointer-events-none" />
-
-        <div className="relative z-10 w-full max-w-md bg-white/95 dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-700/80 rounded-3xl p-8 shadow-2xl space-y-6 animate-fade-in text-slate-900 dark:text-white ring-1 ring-black/5 dark:ring-white/10">
+      <div className="min-h-[85vh] flex flex-col items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 shadow-2xl space-y-6 animate-fade-in">
           
-          <div className="w-16 h-16 bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 text-white rounded-2xl flex items-center justify-center mx-auto shadow-xl shadow-brand-500/30 ring-2 ring-white/20">
+          <div className="w-16 h-16 bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
             <KeyRound className="w-8 h-8" />
           </div>
 
           <div className="text-center">
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">ScholarSeek Admin Portal</h2>
-            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mt-1">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">ScholarSeek Admin Portal</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Select login mode to manage scholarship schemes &amp; team domains.
             </p>
           </div>
 
           {/* Login Mode Toggle */}
-          <div className="flex bg-slate-100 dark:bg-slate-950/80 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl">
             <button
-              type="button"
               onClick={() => { setLoginMethod('super'); setPassError(''); }}
-              className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all cursor-pointer ${
+              className={`flex-1 py-2 text-xs font-bold rounded-xl transition-colors ${
                 loginMethod === 'super'
-                  ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-600/40'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-gray-900 text-brand-600 dark:text-brand-400 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
               Super Admin Passcode
             </button>
             <button
-              type="button"
               onClick={() => { setLoginMethod('member'); setPassError(''); }}
-              className={`flex-1 py-2.5 text-xs font-extrabold rounded-xl transition-all cursor-pointer ${
+              className={`flex-1 py-2 text-xs font-bold rounded-xl transition-colors ${
                 loginMethod === 'member'
-                  ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-600/40'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-gray-900 text-brand-600 dark:text-brand-400 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
               Team Member Login
@@ -746,8 +516,8 @@ export default function Admin() {
           </div>
 
           {passError && (
-            <div className="bg-red-50 dark:bg-red-950/80 border border-red-300 dark:border-red-600 text-red-800 dark:text-red-200 text-xs font-bold p-3.5 rounded-xl flex items-center justify-center space-x-2 shadow-sm">
-              <AlertCircle className="w-4 h-4 shrink-0 text-red-600 dark:text-red-400" />
+            <div className="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-bold p-3.5 rounded-xl flex items-center justify-center space-x-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{passError}</span>
             </div>
           )}
@@ -756,56 +526,44 @@ export default function Admin() {
           {loginMethod === 'super' ? (
             <form onSubmit={handleSuperAdminAuth} className="space-y-4 text-left">
               <div>
-                <label htmlFor="admin-super-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 mb-1.5 cursor-pointer">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
                   Super Admin Email ID *
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-600 dark:text-indigo-400" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
-                    id="admin-super-email"
-                    name="email"
                     type="email"
                     required
-                    autoComplete="email"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck="false"
                     value={superEmail}
                     onChange={(e) => setSuperEmail(e.target.value)}
                     placeholder="Enter Email"
-                    className="w-full h-12 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500 outline-none"
+                    className="w-full h-12 pl-10 pr-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="admin-super-password" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 mb-1.5 cursor-pointer">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
                   Super Admin Password *
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-600 dark:text-indigo-400" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
-                    id="admin-super-password"
-                    name="password"
                     type="password"
                     required
-                    autoComplete="current-password"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck="false"
                     value={inputPass}
                     onChange={(e) => setInputPass(e.target.value)}
                     placeholder="Enter Password"
-                    className="w-full h-12 pl-10 pr-4 bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500 outline-none"
+                    className="w-full h-12 pl-10 pr-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full h-12 bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center justify-center space-x-2 transition-all shadow-xl shadow-brand-500/25 cursor-pointer border border-white/20 active:scale-95"
+                className="w-full h-12 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl flex items-center justify-center space-x-2 transition-colors shadow-md cursor-pointer"
               >
-                <ShieldCheck className="w-4 h-4 text-amber-300" />
+                <ShieldCheck className="w-4 h-4" />
                 <span>Log In as Super Admin</span>
               </button>
             </form>
@@ -813,56 +571,44 @@ export default function Admin() {
             /* Team Member Form */
             <form onSubmit={handleMemberAuth} className="space-y-4 text-left">
               <div>
-                <label htmlFor="admin-member-email" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 mb-1.5 cursor-pointer">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
                   Website Email ID *
                 </label>
                 <input
-                  id="admin-member-email"
-                  name="email"
                   type="email"
                   required
-                  autoComplete="email"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck="false"
                   value={memberEmail}
                   onChange={(e) => setMemberEmail(e.target.value)}
                   placeholder="Enter Email"
-                  className="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500 outline-none"
+                  className="w-full h-12 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
               <div>
-                <label htmlFor="admin-member-password" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 mb-1.5 cursor-pointer">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
                   Password *
                 </label>
                 <input
-                  id="admin-member-password"
-                  name="password"
                   type="password"
                   required
-                  autoComplete="current-password"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck="false"
                   value={memberPass}
                   onChange={(e) => setMemberPass(e.target.value)}
                   placeholder="Enter password"
-                  className="w-full h-12 px-4 bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-brand-500 outline-none"
+                  className="w-full h-12 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full h-12 bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center justify-center space-x-2 transition-all shadow-xl shadow-brand-500/25 cursor-pointer border border-white/20 active:scale-95"
+                className="w-full h-12 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl flex items-center justify-center space-x-2 transition-colors shadow-md cursor-pointer"
               >
-                <UserCheck className="w-4 h-4 text-emerald-300" />
+                <UserCheck className="w-4 h-4" />
                 <span>Log In as Team Member</span>
               </button>
             </form>
           )}
 
-          <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-4 text-center">
+          <p className="text-[11px] text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-gray-800 pt-4 text-center">
             Protected Admin Route — Official Team &amp; Super Admin Access
           </p>
 
@@ -875,112 +621,72 @@ export default function Admin() {
   // AUTHENTICATED ADMIN PORTAL
   // ==========================================
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 text-slate-100 relative overflow-hidden transition-colors duration-300 pb-16">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 animate-fade-in">
       
-      {/* Decorative Vibrant Multi-Colored Ambient Gradient Blobs */}
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-gradient-to-tr from-brand-600/20 via-indigo-600/20 to-purple-600/20 rounded-full blur-[160px] pointer-events-none animate-pulse" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/15 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-40 left-10 w-96 h-96 bg-cyan-500/15 rounded-full blur-[120px] pointer-events-none" />
+      {/* Top Header Bar */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center text-xs font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4 mr-1.5" />
+          Back to Website
+        </button>
 
-      {/* Top Brand Navbar */}
-      <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-xl">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 rounded-xl text-white shadow-md ring-1 ring-white/20">
-            <GraduationCap className="w-6 h-6" />
+          <div className="text-right">
+            <span className="block text-xs font-bold text-gray-900 dark:text-white">{activeSession.name}</span>
+            <span className="block text-[10px] text-gray-500 dark:text-gray-400">
+              Sectors: <strong className="text-brand-600 dark:text-brand-400">{allowedSectors.length === SECTORS_LIST.length ? 'All Sectors' : allowedSectors.join(', ')}</strong>
+            </span>
+          </div>
+
+          <button
+            onClick={handleAdminLogout}
+            className="inline-flex items-center text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-900 transition-colors cursor-pointer"
+          >
+            <LogOut className="w-3.5 h-3.5 mr-1" />
+            <span>Logout Session</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Title Header */}
+      <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="flex items-center space-x-3">
+          <div className="p-3 bg-brand-600 rounded-2xl text-white shadow-lg">
+            {editingId ? <Edit2 className="w-6 h-6" /> : <PlusCircle className="w-6 h-6" />}
           </div>
           <div>
-            <span className="text-xl font-black text-white tracking-tight flex items-center">
-              Scholar<span className="bg-gradient-to-r from-brand-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent ml-0.5">Seek Admin</span>
-            </span>
-            <p className="text-[10px] font-bold text-indigo-300 tracking-wide">Official Team Management Portal</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+              {activeSession.isSuperAdmin ? 'Super Admin Portal' : `Team Portal (${allowedSectors.length} Sectors Assigned)`}
+            </h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              Multi-sector delegation, bilingual (English &amp; Hindi) scholarship authoring, and member editing controls.
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
-          {/* Language Selector */}
-          <div className="hidden sm:flex items-center space-x-1 bg-slate-800/90 border border-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-200 shadow-sm">
-            <Globe className="w-3.5 h-3.5 text-indigo-400" />
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value)}
-              className="bg-transparent text-slate-100 outline-none cursor-pointer font-bold"
-            >
-              <option value="English" className="bg-slate-900 text-white">English</option>
-              <option value="Hindi" className="bg-slate-900 text-white">हिन्दी</option>
-              <option value="Gujarati" className="bg-slate-900 text-white">ગુજરાતી</option>
-            </select>
-          </div>
-
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleDarkMode}
-            type="button"
-            title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            className="flex items-center space-x-1 px-3 py-1.5 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-xs font-black text-white rounded-xl transition-all shadow-sm cursor-pointer active:scale-95"
-          >
-            {darkMode ? <Sun className="h-4 w-4 text-amber-400 animate-spin-slow" /> : <Moon className="h-4 w-4 text-indigo-400" />}
-            <span className="hidden sm:inline">{darkMode ? 'Dark' : 'Light'}</span>
-          </button>
-
-          {/* User Profile & Logout */}
-          <div className="flex items-center space-x-2 border-l border-slate-800 pl-3">
-            <div className="text-right hidden sm:block">
-              <span className="block text-xs font-black text-white">{activeSession.name}</span>
-              <span className="block text-[10px] text-slate-400">
-                <strong className="text-indigo-400">{allowedSectors.length === SECTORS_LIST.length ? 'All Sectors' : `${allowedSectors.length} Sectors`}</strong>
-              </span>
-            </div>
-
-            <button
-              onClick={handleAdminLogout}
-              className="inline-flex items-center text-xs font-extrabold text-red-300 hover:text-white bg-red-950/60 hover:bg-red-900/80 px-3 py-1.5 rounded-xl border border-red-800/80 transition-all cursor-pointer shadow-md active:scale-95"
-            >
-              <LogOut className="w-3.5 h-3.5 mr-1 text-red-400" />
-              <span>Logout</span>
-            </button>
-          </div>
+        <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+          <UserCheck className="w-3.5 h-3.5 mr-1" />
+          <span>{activeSession.isSuperAdmin ? 'Super Admin' : activeSession.role}</span>
         </div>
-      </header>
+      </div>
 
-      {/* Main Admin Content Container */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
-        
-        {/* Title Header Banner */}
-        <div className="bg-slate-900/90 backdrop-blur-2xl border border-slate-700/80 rounded-3xl p-6 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 ring-1 ring-white/10">
-          <div className="flex items-center space-x-3.5">
-            <div className="p-3.5 bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 rounded-2xl text-white shadow-xl shadow-indigo-500/30 ring-2 ring-white/20">
-              {editingId ? <Edit2 className="w-6 h-6" /> : <PlusCircle className="w-6 h-6" />}
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                {activeSession.isSuperAdmin ? 'Super Admin Portal' : `Team Member Portal (${allowedSectors.length} Sectors Assigned)`}
-              </h1>
-              <p className="text-xs font-semibold text-slate-300 mt-1">
-                Multi-sector delegation, bilingual scholarship management, and team access control.
-              </p>
-            </div>
-          </div>
-
-          <div className="inline-flex items-center px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-teal-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-extrabold shadow-md">
-            <UserCheck className="w-4 h-4 mr-1.5 text-emerald-400" />
-            <span>{activeSession.isSuperAdmin ? 'Super Admin (Full Access)' : activeSession.role}</span>
-          </div>
+      {/* System Notifications */}
+      {successMsg && (
+        <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-sm font-semibold flex items-center space-x-2">
+          <CheckCircle2 className="w-5 h-5 shrink-0" />
+          <span>{successMsg}</span>
         </div>
+      )}
 
-        {/* System Notifications */}
-        {successMsg && (
-          <div className="p-4 rounded-2xl bg-emerald-950/80 border border-emerald-600 text-emerald-200 text-sm font-extrabold flex items-center space-x-2 shadow-xl">
-            <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
-            <span>{successMsg}</span>
-          </div>
-        )}
-
-        {errorMsg && (
-          <div className="p-4 rounded-2xl bg-red-950/80 border border-red-600 text-red-200 text-sm font-extrabold flex items-center space-x-2 shadow-xl">
-            <AlertCircle className="w-5 h-5 shrink-0 text-red-400" />
-            <span>{errorMsg}</span>
-          </div>
-        )}
+      {errorMsg && (
+        <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 text-sm font-semibold flex items-center space-x-2">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
 
       {/* ==========================================
           SECTION 1: SUPER ADMIN MULTI-SECTOR TEAM MANAGEMENT
@@ -1114,62 +820,39 @@ export default function Admin() {
 
           {/* Team Member List with Full Edit Button */}
           <div className="space-y-3">
-            {teamMembers.map((member, idx) => {
-              if (!member) return null;
-              const memberName = member.name || member.email || 'Team Member';
-              const memberEmail = member.email || 'N/A';
-              const memberRole = member.role || 'Administrator';
-              const memberId = member.id || member._id || `mem_${idx}`;
-              const memberInitials = memberName.substring(0, 2).toUpperCase();
-
+            {teamMembers.map(member => {
               const memberSectors = Array.isArray(member.assignedSectors)
                 ? member.assignedSectors
                 : (member.assignedSector ? [member.assignedSector] : ['All Sectors']);
 
               return (
-                <div key={memberId} className="p-4 bg-gray-50 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div key={member.id} className="p-4 bg-gray-50 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 font-bold text-xs flex items-center justify-center shrink-0">
-                      {memberInitials}
+                      {member.name.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-xs font-bold text-gray-900 dark:text-white">{memberName}</h4>
+                      <div className="flex items-center space-x-2">
+                        <h4 className="text-xs font-bold text-gray-900 dark:text-white">{member.name}</h4>
                         <span className="text-[10px] font-mono bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">
-                          {memberEmail}
+                          {member.email}
                         </span>
                       </div>
                       
-                      <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
                         <span className="text-[10px] text-gray-400 font-medium">Assigned Sectors:</span>
                         {memberSectors.map(sec => (
                           <span key={sec} className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-brand-50 dark:bg-brand-950 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
                             {sec}
                           </span>
                         ))}
-
-                        {/* Password Reveal Badge for Super Admin */}
-                        {member.password && (
-                          <span className="text-[10px] font-mono bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800 flex items-center space-x-1.5 ml-1">
-                            <Key className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                            <span>Pass: <strong>{showPassMap[memberId] ? member.password : '••••••••'}</strong></span>
-                            <button
-                              type="button"
-                              onClick={() => toggleShowPass(memberId)}
-                              className="p-0.5 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
-                              title={showPassMap[memberId] ? "Hide Password" : "Show Password"}
-                            >
-                              {showPassMap[memberId] ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                            </button>
-                          </span>
-                        )}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center space-x-3">
                     <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                      {memberRole}
+                      {member.role}
                     </span>
 
                     {/* Edit Member Button */}
@@ -1183,7 +866,7 @@ export default function Admin() {
                     </button>
 
                     <button
-                      onClick={() => handleDeleteMember(memberId, memberName, memberEmail)}
+                      onClick={() => handleDeleteMember(member.id, member.name)}
                       className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                       title="Delete Member"
                     >
@@ -1671,7 +1354,6 @@ export default function Admin() {
         )}
       </div>
 
-    </div>
     </div>
   );
 }

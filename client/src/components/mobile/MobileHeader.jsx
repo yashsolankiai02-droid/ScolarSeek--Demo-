@@ -10,8 +10,8 @@ const MobileHeader = () => {
   const { profile } = useProfile();
 
   const getInitials = (name) => {
-    if (!name || typeof name !== 'string') return 'U';
-    return name.split(' ').map((n) => n[0] || '').join('').toUpperCase().substring(0, 2) || 'U';
+    if (!name) return 'U';
+    return name.split(' ').map((n) => n[0]).join('').toUpperCase().substring(0, 2);
   };
 
   return (

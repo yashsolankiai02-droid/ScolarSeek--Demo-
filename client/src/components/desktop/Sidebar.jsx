@@ -20,7 +20,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-60 z-30 bg-white dark:bg-slate-950 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors">
+    <aside className="fixed left-0 top-0 h-screen w-60 z-30 bg-white dark:bg-black border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors">
       <div className="flex items-center gap-2 p-6 border-b border-gray-200 dark:border-gray-800">
         <GraduationCap className="h-8 w-8 text-brand-600 dark:text-brand-400" />
         <span className="text-xl font-bold text-gray-900 dark:text-white">ScholarSeek</span>
