@@ -59,9 +59,7 @@ const emptyForm = {
   roleType: 'Implementation/Field work',
 };
 
-const INITIAL_MEMBERS = [
-  { id: 'mem_1', name: 'ScholarSeek Admin', email: 'admin@scholarseek.ac.in', password: 'DLV69', role: 'Super Admin', assignedSectors: ['All Sectors'], addedAt: '2026-01-10' }
-];
+
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -84,36 +82,6 @@ export default function Admin() {
   const [scholarships, setScholarships] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
-  // Team Member Management State
-  const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
-
-  const fetchTeamMembers = async () => {
-    try {
-      const res = await axios.get('/api/auth/members');
-      if (res.data && res.data.success && Array.isArray(res.data.members)) {
-        setTeamMembers(res.data.members);
-      }
-    } catch (e) {
-      console.warn('Error fetching team members from MongoDB:', e.message);
-    }
-  };
-
-  useEffect(() => {
-    fetchTeamMembers();
-  }, []);
-
-  const [newMember, setNewMember] = useState({
-    name: '',
-    email: '',
-    password: '',
-    role: 'Administrator',
-    assignedSectors: ['Educational']
-  });
-
-  // Edit Member Modal State
-  const [editingMember, setEditingMember] = useState(null);
-  
-  const [memberMsg, setMemberMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -303,134 +271,6 @@ export default function Admin() {
       setErrorMsg(
         err.response?.data?.message || 'Failed to delete all scholarships.'
       );
-    }
-  };
-
-  // Super Admin Member Management Handlers
-  const handleToggleNewMemberSector = (sectorName) => {
-    setNewMember(prev => {
-      let current = [...prev.assignedSectors];
-      if (sectorName === 'All Sectors') {
-        return { ...prev, assignedSectors: ['All Sectors'] };
-      }
-      current = current.filter(s => s !== 'All Sectors');
-      if (current.includes(sectorName)) {
-        current = current.filter(s => s !== sectorName);
-      } else {
-        current.push(sectorName);
-      }
-      if (current.length === 0) current = ['Educational'];
-      return { ...prev, assignedSectors: current };
-    });
-  };
-
-  const handleToggleEditMemberSector = (sectorName) => {
-    setEditingMember(prev => {
-      if (!prev) return prev;
-      let current = [...prev.assignedSectors];
-      if (sectorName === 'All Sectors') {
-        return { ...prev, assignedSectors: ['All Sectors'] };
-      }
-      current = current.filter(s => s !== 'All Sectors');
-      if (current.includes(sectorName)) {
-        current = current.filter(s => s !== sectorName);
-      } else {
-        current.push(sectorName);
-      }
-      if (current.length === 0) current = ['Educational'];
-      return { ...prev, assignedSectors: current };
-    });
-  };
-
-  const handleAddMember = async (e) => {
-    e.preventDefault();
-    setMemberMsg('');
-
-    const trimmedName = newMember.name.trim();
-    const trimmedEmail = newMember.email.trim();
-    const trimmedPassword = newMember.password.trim();
-
-    if (!trimmedName || !trimmedEmail || !trimmedPassword) {
-      setMemberMsg('⚠️ Please fill out name, email, and password.');
-      return;
-    }
-
-    try {
-      const response = await axios.post('/api/auth/members', {
-        name: trimmedName,
-        email: trimmedEmail,
-        password: trimmedPassword,
-        role: newMember.role || 'Administrator',
-        assignedSectors: newMember.assignedSectors.length > 0 ? newMember.assignedSectors : ['All Sectors']
-      });
-
-      if (response.data && response.data.success) {
-        setMemberMsg(`✅ Team member "${trimmedName}" saved permanently in MongoDB database!`);
-        setNewMember({ name: '', email: '', password: '', role: 'Administrator', assignedSectors: ['Educational'] });
-        await fetchTeamMembers();
-        setTimeout(() => setMemberMsg(''), 4000);
-      } else {
-        setMemberMsg(`⚠️ ${response.data?.message || 'Error saving team member.'}`);
-      }
-    } catch (err) {
-      console.error('Backend team member add error:', err);
-      setMemberMsg(`⚠️ ${err.response?.data?.message || err.message || 'Error saving team member.'}`);
-    }
-  };
-
-  const handleStartEditMember = (member) => {
-    setEditingMember({
-      id: member.id,
-      name: member.name,
-      email: member.email,
-      password: member.password || '',
-      role: member.role || 'Administrator',
-      assignedSectors: Array.isArray(member.assignedSectors) ? [...member.assignedSectors] : ['All Sectors']
-    });
-  };
-
-  const handleSaveEditedMember = async (e) => {
-    e.preventDefault();
-    if (!editingMember) return;
-
-    if (!editingMember.name.trim() || !editingMember.email.trim() || !editingMember.password.trim()) {
-      alert('Name, Email, and Password cannot be blank.');
-      return;
-    }
-
-    try {
-      const response = await axios.put(`/api/auth/members/${editingMember.id}`, {
-        name: editingMember.name.trim(),
-        email: editingMember.email.trim(),
-        password: editingMember.password.trim(),
-        role: editingMember.role,
-        assignedSectors: editingMember.assignedSectors
-      });
-
-      if (response.data && response.data.success) {
-        setMemberMsg(`✅ Member "${editingMember.name}" updated permanently in MongoDB!`);
-        setEditingMember(null);
-        fetchTeamMembers();
-        setTimeout(() => setMemberMsg(''), 4000);
-      }
-    } catch (err) {
-      alert(err.response?.data?.message || 'Error updating member.');
-    }
-  };
-
-  const handleDeleteMember = async (id, name) => {
-    const confirmDelete = window.confirm(`Remove team member "${name}" permanently from MongoDB database?`);
-    if (!confirmDelete) return;
-
-    try {
-      const response = await axios.delete(`/api/auth/members/${id}`);
-      if (response.data && response.data.success) {
-        setMemberMsg(`🗑️ Member "${name}" deleted permanently from MongoDB.`);
-        fetchTeamMembers();
-        setTimeout(() => setMemberMsg(''), 4000);
-      }
-    } catch (err) {
-      alert(err.response?.data?.message || 'Error deleting member.');
     }
   };
 
