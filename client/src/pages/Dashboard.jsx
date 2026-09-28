@@ -16,10 +16,10 @@ export default function Dashboard() {
   if (completionPercentage < 100) {
     pendingActions.push({ msg: 'Complete your profile to improve scholarship matching.', link: '/profile', icon: <User className="w-4 h-4 text-brand-600" /> });
   }
-  if (applications.some(app => app.documents.some(d => d.status !== 'Ready'))) {
+  if (applications?.some(app => app?.documents?.some(d => d?.status !== 'Ready'))) {
     pendingActions.push({ msg: 'Upload pending documents for your active applications.', link: '/applications', icon: <FileText className="w-4 h-4 text-brand-600" /> });
   }
-  if (profile.verificationStatus.income === 'manual_review') {
+  if (profile?.verificationStatus?.income === 'manual_review') {
     pendingActions.push({ msg: 'Income verification requires manual review. Please upload an official certificate.', link: '/profile', icon: <AlertCircle className="w-4 h-4 text-amber-600" /> });
   }
 
@@ -30,7 +30,7 @@ export default function Dashboard() {
       <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
-            Welcome back{profile.name ? `, ${profile.name.split(' ')[0]}` : ''}!
+            Welcome back{profile?.name ? `, ${profile.name.split(' ')[0]}` : ''}!
           </h1>
           <p className="text-gray-600 dark:text-slate-400 mt-2 max-w-2xl">
             This is your unified dashboard. Manage your profile, track application deadlines, and monitor your document readiness all in one place.

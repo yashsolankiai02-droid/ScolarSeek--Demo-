@@ -37,8 +37,8 @@ export default function Applications() {
       ) : (
         <div className="space-y-8">
           {applications.map(app => {
-            const readyDocsCount = app.documents.filter(d => d.status === 'Ready').length;
-            const totalDocsCount = app.documents.length;
+            const readyDocsCount = app.documents?.filter(d => d?.status === 'Ready')?.length || 0;
+            const totalDocsCount = app.documents?.length || 0;
             const step1Complete = readyDocsCount === totalDocsCount;
             const step2Complete = !!app.formFilledOnOfficialSite;
             const step3Complete = step2Complete;

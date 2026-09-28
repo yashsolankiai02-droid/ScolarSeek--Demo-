@@ -118,7 +118,7 @@ export default function Profile() {
               <input type="text" value={profile.district} onChange={e => updateProfile({district: e.target.value})} className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none" />
             </div>
           </div>
-          {profile.verificationStatus.identity === 'verified' && (
+          {profile?.verificationStatus?.identity === 'verified' && (
             <div className="mt-4 text-xs font-semibold text-emerald-600 dark:text-emerald-300 flex items-center bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 w-fit px-3 py-1.5 rounded-lg">
               <ShieldCheck className="w-4 h-4 mr-1.5" /> Identity Verified via Mock API
             </div>
@@ -157,7 +157,7 @@ export default function Profile() {
               <input type="text" value={profile.year} onChange={e => updateProfile({year: e.target.value})} placeholder="e.g. 2nd Year" className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none" />
             </div>
           </div>
-          {profile.verificationStatus.academic === 'verified' && (
+          {profile?.verificationStatus?.academic === 'verified' && (
             <div className="mt-4 text-xs font-semibold text-emerald-600 dark:text-emerald-300 flex items-center bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 w-fit px-3 py-1.5 rounded-lg">
               <ShieldCheck className="w-4 h-4 mr-1.5" /> Academic Records Verified via Mock API
             </div>
@@ -182,7 +182,7 @@ export default function Profile() {
                 <option value="ST">ST</option>
                 <option value="EWS">EWS</option>
               </select>
-              {profile.verificationStatus.category === 'verified' && (
+              {profile?.verificationStatus?.category === 'verified' && (
                 <div className="mt-2 text-xs font-semibold text-emerald-600 dark:text-emerald-300 flex items-center">
                   <ShieldCheck className="w-4 h-4 mr-1" /> Category Verified
                 </div>
@@ -199,7 +199,7 @@ export default function Profile() {
                 <option value="10-15 Lakhs">₹10 - 15 Lakhs</option>
                 <option value="> 15 Lakhs">More than ₹15 Lakhs</option>
               </select>
-              {profile.verificationStatus.income === 'manual_review' && (
+              {profile?.verificationStatus?.income === 'manual_review' && (
                 <div className="mt-2 text-xs font-semibold text-amber-600 dark:text-amber-300 flex items-start bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-200 dark:border-amber-800">
                   <AlertCircle className="w-4 h-4 mr-1.5 shrink-0 mt-0.5" />
                   <span>Manual Review Required: Mock verification API could not automatically match income records. Please upload an official Income Certificate.</span>
