@@ -619,13 +619,25 @@ export default function Admin() {
 
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-2">Application Deadline *</label>
-              <input
-                type="date"
-                required
-                value={formData.deadline}
-                onChange={(e) => handleChange('deadline', e.target.value)}
-                className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white outline-none"
-              />
+              <div className="flex items-center space-x-3">
+                <input
+                  type={formData.deadline === 'Not declared yet' ? 'text' : 'date'}
+                  required={formData.deadline !== 'Not declared yet'}
+                  disabled={formData.deadline === 'Not declared yet'}
+                  value={formData.deadline}
+                  onChange={(e) => handleChange('deadline', e.target.value)}
+                  className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white outline-none disabled:opacity-50"
+                />
+                <label className="flex items-center space-x-2 whitespace-nowrap cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={formData.deadline === 'Not declared yet'}
+                    onChange={(e) => handleChange('deadline', e.target.checked ? 'Not declared yet' : '')}
+                    className="w-4 h-4 text-brand-600 rounded focus:ring-brand-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Not declared yet</span>
+                </label>
+              </div>
             </div>
           </div>
 
