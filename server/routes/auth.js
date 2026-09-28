@@ -4,9 +4,9 @@ const User = require('../models/User');
 
 const SUPER_ADMIN = {
   id: 'mem_1',
-  name: 'Yash Solanki (Super Admin)',
-  email: 'yashsolanki@scholarseek.ac.in',
-  password: 'saumya2',
+  name: 'ScholarSeek Admin',
+  email: 'admin@scholarseek.ac.in',
+  password: 'DLV69',
   role: 'Super Admin',
   assignedSectors: ['All Sectors'],
   addedAt: '2026-01-10'
@@ -15,7 +15,7 @@ const SUPER_ADMIN = {
 // Helper to seed Super Admin in MongoDB if not exists
 const ensureSuperAdminInDB = async () => {
   try {
-    const existing = await User.findOne({ email: 'yashsolanki@scholarseek.ac.in' });
+    const existing = await User.findOne({ email: 'admin@scholarseek.ac.in' });
     if (!existing) {
       await User.create({
         name: SUPER_ADMIN.name,
@@ -96,16 +96,16 @@ router.post('/login', async (req, res) => {
     }
 
     // Check Super Admin Credentials
-    const isSuperAdminEmail = email === 'yashsolanki@scholarseek.ac.in' || email === 'admin';
-    const isValidAdminPass = password === 'saumya2' || password === 'DLV0909' || password === 'admin123';
+    const isSuperAdminEmail = email === 'admin@scholarseek.ac.in' || email === 'admin';
+    const isValidAdminPass = password === 'DLV69' || password === 'admin123';
 
     if (isSuperAdminEmail && isValidAdminPass) {
       return res.status(200).json({
         success: true,
         user: {
           id: 'mem_1',
-          name: 'Yash Solanki (Super Admin)',
-          email: 'yashsolanki@scholarseek.ac.in',
+          name: 'ScholarSeek Admin',
+          email: 'admin@scholarseek.ac.in',
           role: 'super_admin',
           assignedSectors: ['All Sectors']
         }
@@ -170,7 +170,7 @@ router.get('/members', async (req, res) => {
     }));
 
     // Ensure Super Admin is first
-    const hasSuperAdmin = formatted.some(m => m.email === 'yashsolanki@scholarseek.ac.in');
+    const hasSuperAdmin = formatted.some(m => m.email === 'admin@scholarseek.ac.in');
     const finalMembers = hasSuperAdmin ? formatted : [SUPER_ADMIN, ...formatted];
 
     res.status(200).json({ success: true, members: finalMembers });

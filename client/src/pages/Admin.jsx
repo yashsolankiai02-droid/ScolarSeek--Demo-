@@ -59,8 +59,8 @@ const emptyForm = {
   roleType: 'Implementation/Field work',
 };
 
-const initialTeamMembers = [
-  { id: 'mem_1', name: 'Yash Solanki', email: 'yashsolanki@scholarseek.ac.in', password: 'saumya2', role: 'Super Admin', assignedSectors: ['All Sectors'], addedAt: '2026-01-10' }
+const INITIAL_MEMBERS = [
+  { id: 'mem_1', name: 'ScholarSeek Admin', email: 'admin@scholarseek.ac.in', password: 'DLV69', role: 'Super Admin', assignedSectors: ['All Sectors'], addedAt: '2026-01-10' }
 ];
 
 export default function Admin() {
@@ -154,59 +154,26 @@ export default function Admin() {
     }
 
     if (
-      emailInput === 'yashsolanki@scholarseek.ac.in' &&
-      (passInput === 'saumya2' || passInput === SUPER_ADMIN_PASSWORD)
+      emailInput === 'admin@scholarseek.ac.in' &&
+      (passInput === 'DLV69' || passInput === SUPER_ADMIN_PASSWORD)
     ) {
       const session = {
         isSuperAdmin: true,
-        name: 'Yash Solanki (Super Admin)',
-        email: 'yashsolanki@scholarseek.ac.in',
+        name: 'ScholarSeek Admin',
+        email: 'admin@scholarseek.ac.in',
         role: 'Super Admin',
         assignedSectors: ['All Sectors']
       };
       setActiveSession(session);
     } else {
-      setPassError('Invalid Super Admin Email or Password! Access Denied.');
+      setPassError('Invalid Admin Email or Password! Access Denied.');
     }
   };
 
   const handleMemberAuth = (e) => {
     e.preventDefault();
-    setPassError('');
-
-    const inputEmail = memberEmail.trim().toLowerCase();
-    const found = teamMembers.find(
-      (m) => m.email.toLowerCase() === inputEmail && m.password === memberPass
-    );
-
-    if (found) {
-      const memberSectors = Array.isArray(found.assignedSectors)
-        ? found.assignedSectors
-        : (found.assignedSector ? [found.assignedSector] : ['All Sectors']);
-
-      const session = {
-        isSuperAdmin: found.role === 'Super Admin' || memberSectors.includes('All Sectors'),
-        name: found.name,
-        email: found.email,
-        role: found.role,
-        assignedSectors: memberSectors
-      };
-      setActiveSession(session);
-    } else if (
-      inputEmail === 'yashsolanki@scholarseek.ac.in' &&
-      (memberPass === 'saumya2' || memberPass === SUPER_ADMIN_PASSWORD)
-    ) {
-      const session = {
-        isSuperAdmin: true,
-        name: 'Yash Solanki (Super Admin)',
-        email: 'yashsolanki@scholarseek.ac.in',
-        role: 'Super Admin',
-        assignedSectors: ['All Sectors']
-      };
-      setActiveSession(session);
-    } else {
-      setPassError('Invalid Email or Password! Access Denied.');
-    }
+    // Re-routed to the single universal admin auth
+    handleSuperAdminAuth(e);
   };
 
   const handleAdminLogout = () => {
@@ -491,30 +458,6 @@ export default function Admin() {
             </p>
           </div>
 
-          {/* Login Mode Toggle */}
-          <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl">
-            <button
-              onClick={() => { setLoginMethod('super'); setPassError(''); }}
-              className={`flex-1 py-2 text-xs font-bold rounded-xl transition-colors ${
-                loginMethod === 'super'
-                  ? 'bg-white dark:bg-gray-900 text-brand-600 dark:text-brand-400 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              Super Admin Passcode
-            </button>
-            <button
-              onClick={() => { setLoginMethod('member'); setPassError(''); }}
-              className={`flex-1 py-2 text-xs font-bold rounded-xl transition-colors ${
-                loginMethod === 'member'
-                  ? 'bg-white dark:bg-gray-900 text-brand-600 dark:text-brand-400 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              Team Member Login
-            </button>
-          </div>
-
           {passError && (
             <div className="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-bold p-3.5 rounded-xl flex items-center justify-center space-x-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -522,12 +465,10 @@ export default function Admin() {
             </div>
           )}
 
-          {/* Super Admin Form */}
-          {loginMethod === 'super' ? (
-            <form onSubmit={handleSuperAdminAuth} className="space-y-4 text-left">
+          <form onSubmit={handleSuperAdminAuth} className="space-y-4 text-left">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
-                  Super Admin Email ID *
+                  Admin Email ID *
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -544,7 +485,7 @@ export default function Admin() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
-                  Super Admin Password *
+                  Admin Password *
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -564,49 +505,9 @@ export default function Admin() {
                 className="w-full h-12 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl flex items-center justify-center space-x-2 transition-colors shadow-md cursor-pointer"
               >
                 <ShieldCheck className="w-4 h-4" />
-                <span>Log In as Super Admin</span>
+                <span>Log In to Admin Portal</span>
               </button>
             </form>
-          ) : (
-            /* Team Member Form */
-            <form onSubmit={handleMemberAuth} className="space-y-4 text-left">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
-                  Website Email ID *
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={memberEmail}
-                  onChange={(e) => setMemberEmail(e.target.value)}
-                  placeholder="Enter Email"
-                  className="w-full h-12 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
-                  Password *
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={memberPass}
-                  onChange={(e) => setMemberPass(e.target.value)}
-                  placeholder="Enter password"
-                  className="w-full h-12 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full h-12 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl flex items-center justify-center space-x-2 transition-colors shadow-md cursor-pointer"
-              >
-                <UserCheck className="w-4 h-4" />
-                <span>Log In as Team Member</span>
-              </button>
-            </form>
-          )}
 
           <p className="text-[11px] text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-gray-800 pt-4 text-center">
             Protected Admin Route — Official Team &amp; Super Admin Access
@@ -685,336 +586,6 @@ export default function Admin() {
         <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 text-sm font-semibold flex items-center space-x-2">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{errorMsg}</span>
-        </div>
-      )}
-
-      {/* ==========================================
-          SECTION 1: SUPER ADMIN MULTI-SECTOR TEAM MANAGEMENT
-          (Only visible to Super Admin)
-          ========================================== */}
-      {activeSession.isSuperAdmin && (
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm p-8 rounded-3xl space-y-6">
-          
-          <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
-            <div className="flex items-center space-x-2 text-gray-900 dark:text-white">
-              <Users className="w-5 h-5 text-brand-600 dark:text-brand-400" />
-              <h2 className="text-lg font-bold">Team Member Management &amp; Full Detail Editing</h2>
-            </div>
-            <span className="text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
-              {teamMembers.length} Active Members
-            </span>
-          </div>
-
-          {memberMsg && (
-            <div className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 p-3 rounded-xl border border-emerald-200 dark:border-emerald-800">
-              {memberMsg}
-            </div>
-          )}
-
-          {/* Create Team Member Form */}
-          <form onSubmit={handleAddMember} className="space-y-4 bg-gray-50 dark:bg-gray-800/50 p-5 rounded-2xl border border-gray-200 dark:border-gray-800">
-            <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-              Create New Team Member &amp; Assign Sectors
-            </h4>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Rahul Sharma"
-                  value={newMember.name}
-                  onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                  className="w-full h-10 px-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-white outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Website Email</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="Enter Email"
-                  value={newMember.email}
-                  onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-                  className="w-full h-10 px-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-white outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Password</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Set password"
-                  value={newMember.password}
-                  onChange={(e) => setNewMember({ ...newMember, password: e.target.value })}
-                  className="w-full h-10 px-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-white outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Role</label>
-                <select
-                  value={newMember.role}
-                  onChange={(e) => setNewMember({ ...newMember, role: e.target.value })}
-                  className="w-full h-10 px-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-white outline-none"
-                >
-                  <option value="Administrator">Administrator</option>
-                  <option value="Editor">Editor</option>
-                  <option value="Reviewer">Reviewer</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Multi-Sector Checkbox / Pill Selector */}
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-2">
-                Assign Authorized Sectors (Select 1, 2, 3, or All)
-              </label>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleToggleNewMemberSector('All Sectors')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
-                    newMember.assignedSectors.includes('All Sectors')
-                      ? 'bg-brand-600 text-white border-brand-600'
-                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700'
-                  }`}
-                >
-                  ✨ All Sectors (Full Access)
-                </button>
-
-                {SECTORS_LIST.map(sec => {
-                  const isSelected = newMember.assignedSectors.includes(sec) && !newMember.assignedSectors.includes('All Sectors');
-                  return (
-                    <button
-                      key={sec}
-                      type="button"
-                      onClick={() => handleToggleNewMemberSector(sec)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center space-x-1 transition-colors ${
-                        isSelected
-                          ? 'bg-brand-50 dark:bg-brand-950 text-brand-700 dark:text-brand-300 border-brand-500 font-bold'
-                          : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700'
-                      }`}
-                    >
-                      {isSelected && <Check className="w-3.5 h-3.5 mr-0.5" />}
-                      <span>{sec}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="pt-2 flex justify-end">
-              <button
-                type="submit"
-                className="h-10 px-6 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-colors shadow-sm cursor-pointer"
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>Create Multi-Sector Member</span>
-              </button>
-            </div>
-          </form>
-
-          {/* Team Member List with Full Edit Button */}
-          <div className="space-y-3">
-            {teamMembers.map(member => {
-              const memberSectors = Array.isArray(member.assignedSectors)
-                ? member.assignedSectors
-                : (member.assignedSector ? [member.assignedSector] : ['All Sectors']);
-
-              return (
-                <div key={member.id} className="p-4 bg-gray-50 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 font-bold text-xs flex items-center justify-center shrink-0">
-                      {member.name.substring(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <h4 className="text-xs font-bold text-gray-900 dark:text-white">{member.name}</h4>
-                        <span className="text-[10px] font-mono bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-700 dark:text-gray-300">
-                          {member.email}
-                        </span>
-                      </div>
-                      
-                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                        <span className="text-[10px] text-gray-400 font-medium">Assigned Sectors:</span>
-                        {memberSectors.map(sec => (
-                          <span key={sec} className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-brand-50 dark:bg-brand-950 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
-                            {sec}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3">
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                      {member.role}
-                    </span>
-
-                    {/* Edit Member Button */}
-                    <button
-                      onClick={() => handleStartEditMember(member)}
-                      className="inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300 border border-brand-200 dark:border-brand-800 hover:bg-brand-100 transition-colors"
-                      title="Edit Member Details"
-                    >
-                      <Edit2 className="w-3.5 h-3.5 mr-1" />
-                      <span>Edit Details</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleDeleteMember(member.id, member.name)}
-                      className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                      title="Delete Member"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-        </div>
-      )}
-
-      {/* ==========================================
-          EDIT MEMBER MODAL (SUPER ADMIN ONLY)
-          ========================================== */}
-      {editingMember && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-2xl space-y-5">
-            
-            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
-              <div className="flex items-center space-x-2 text-gray-900 dark:text-white">
-                <ShieldCheck className="w-5 h-5 text-brand-600" />
-                <h3 className="text-lg font-bold">Edit Member Details &amp; Sector Access</h3>
-              </div>
-              <button
-                onClick={() => setEditingMember(null)}
-                className="p-1 text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveEditedMember} className="space-y-4 text-left">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editingMember.name}
-                  onChange={(e) => setEditingMember({ ...editingMember, name: e.target.value })}
-                  className="w-full h-11 px-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
-                  Website Email ID *
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={editingMember.email}
-                  onChange={(e) => setEditingMember({ ...editingMember, email: e.target.value })}
-                  className="w-full h-11 px-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
-                    Password *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editingMember.password}
-                    onChange={(e) => setEditingMember({ ...editingMember, password: e.target.value })}
-                    className="w-full h-11 px-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
-                    Role *
-                  </label>
-                  <select
-                    value={editingMember.role}
-                    onChange={(e) => setEditingMember({ ...editingMember, role: e.target.value })}
-                    className="w-full h-11 px-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white outline-none"
-                  >
-                    <option value="Administrator">Administrator</option>
-                    <option value="Editor">Editor</option>
-                    <option value="Reviewer">Reviewer</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Multi-Sector Edit Selector */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-2">
-                  Assigned Authorized Sectors
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleToggleEditMemberSector('All Sectors')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
-                      editingMember.assignedSectors.includes('All Sectors')
-                        ? 'bg-brand-600 text-white border-brand-600'
-                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700'
-                    }`}
-                  >
-                    ✨ All Sectors (Full Access)
-                  </button>
-
-                  {SECTORS_LIST.map(sec => {
-                    const isSelected = editingMember.assignedSectors.includes(sec) && !editingMember.assignedSectors.includes('All Sectors');
-                    return (
-                      <button
-                        key={sec}
-                        type="button"
-                        onClick={() => handleToggleEditMemberSector(sec)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center space-x-1 transition-colors ${
-                          isSelected
-                            ? 'bg-brand-50 dark:bg-brand-950 text-brand-700 dark:text-brand-300 border-brand-500 font-bold'
-                            : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700'
-                        }`}
-                      >
-                        {isSelected && <Check className="w-3.5 h-3.5 mr-0.5" />}
-                        <span>{sec}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="pt-3 flex gap-3">
-                <button
-                  type="submit"
-                  className="flex-1 h-11 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer transition-colors"
-                >
-                  Save Member Changes
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditingMember(null)}
-                  className="px-5 h-11 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold text-xs rounded-xl hover:bg-gray-200 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-
-          </div>
         </div>
       )}
 

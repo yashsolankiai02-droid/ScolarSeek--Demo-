@@ -18,9 +18,9 @@ export default function Login() {
 
   const handleSuperAdminQuickLogin = async () => {
     setError('');
-    setEmail('yashsolanki@scholarseek.ac.in');
-    setPassword('saumya2');
-    const result = await login('yashsolanki@scholarseek.ac.in', 'saumya2');
+    setEmail('admin@scholarseek.ac.in');
+    setPassword('DLV69');
+    const result = await login('admin@scholarseek.ac.in', 'DLV69');
     if (result.success) {
       window.location.href = '/admin';
     }
@@ -128,7 +128,7 @@ export default function Login() {
               className="py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold rounded-xl shadow-xs flex items-center justify-center space-x-1 transition-colors"
             >
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Super Admin</span>
+              <span>Team Admin</span>
             </button>
             <button
               onClick={handleStudentQuickLogin}
