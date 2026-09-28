@@ -7,7 +7,12 @@ export const useProfile = () => useContext(ProfileContext);
 export const ProfileProvider = ({ children }) => {
   const [profile, setProfile] = useState(() => {
     const saved = localStorage.getItem('student_profile');
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') return parsed;
+      } catch(e) {}
+    }
     return {
       // Personal
       name: '',

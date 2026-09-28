@@ -7,7 +7,12 @@ export const useApplications = () => useContext(ApplicationsContext);
 export const ApplicationsProvider = ({ children }) => {
   const [applications, setApplications] = useState(() => {
     const saved = localStorage.getItem('applications_tracker');
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      } catch(e) {}
+    }
     return [];
   });
 

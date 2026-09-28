@@ -7,7 +7,12 @@ export const useSaved = () => useContext(SavedContext);
 export const SavedProvider = ({ children }) => {
   const [savedScholarships, setSavedScholarships] = useState(() => {
     const saved = localStorage.getItem('saved_scholarships');
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      } catch(e) {}
+    }
     return [];
   });
 
