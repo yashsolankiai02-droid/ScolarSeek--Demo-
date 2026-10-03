@@ -7,11 +7,11 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const express = require('express');
 const cors = require('cors');
-const { connectDB } = require('../../server/config/db');
+const { connectDB } = require('../server/config/db');
 
-const searchRouter = require('../../server/routes/search');
-const scholarshipsRouter = require('../../server/routes/scholarships');
-const authRouter = require('../../server/routes/auth');
+const searchRouter = require('../server/routes/search');
+const scholarshipsRouter = require('../server/routes/scholarships');
+const authRouter = require('../server/routes/auth');
 
 const app = express();
 
