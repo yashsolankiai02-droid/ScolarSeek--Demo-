@@ -39,7 +39,7 @@ import StudentAssistant from './components/StudentAssistant';
 
 // Configure Axios default Base URL
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || (isLocalhost ? 'http://localhost:5000' : '');
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || (isLocalhost ? 'http://localhost:5000' : 'https://scolarseek-demo.onrender.com');
 
 // Protected route wrapper
 function ProtectedRoutes() {
